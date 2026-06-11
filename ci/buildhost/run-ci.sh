@@ -8,9 +8,10 @@
 # timer (see hass-opencode-ci.timer) but is also safe to run by hand.
 #
 # Configuration (env or /etc/default/hass-opencode-ci):
-#   CI_HOME    base dir            (default /opt/ci/hass-opencode)
-#   CI_REMOTE  git remote to poll  (default https://github.com/umrath/hass-opencode.git)
-#   CI_BRANCH  branch to track     (default main)
+#   CI_HOME      base dir            (default /opt/ci/hass-opencode)
+#   CI_REMOTE    git remote to poll  (default https://github.com/umrath/hass-opencode.git)
+#   CI_BRANCH    branch to track     (default main)
+#   CI_LOG_KEEP  run logs to retain  (default 50)
 #
 # Flags:
 #   --force    run even if HEAD has not changed
@@ -99,6 +100,14 @@ rc=${PIPESTATUS[0]}
 
 ln -sf "$logfile" "$LOGS/latest.log"
 echo "$remote_sha" > "$STATE/last-sha"
+
+# Prune old run logs, keeping the most recent CI_LOG_KEEP (latest.log is a
+# symlink into this set and always survives as the newest entry).
+keep=${CI_LOG_KEEP:-50}
+ls -1t "$LOGS"/*.log 2>/dev/null | grep -v '/latest\.log$' | tail -n +"$((keep + 1))" | while IFS= read -r old; do
+  rm -f "$old"
+done
+
 if [ "$rc" -eq 0 ]; then
   printf 'PASS %s %s\n' "$short" "$ts" > "$STATE/last-result"
   log "RESULT: PASS ($short)"

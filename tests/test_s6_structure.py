@@ -55,17 +55,22 @@ class TestS6Structure(unittest.TestCase):
             self.assertIn(entry.name, names,
                 f"user/contents.d/{entry.name} references a missing service")
 
+    # s6-overlay ships virtual/bundle targets that are not service dirs in our
+    # tree (e.g. the 'base' bundle every service may depend on). Allow those;
+    # any other dependency must resolve to one of our own services.
+    S6_VIRTUAL = {"base"}
+
     def test_dependency_targets_exist(self):
         names = {d.name for d in service_dirs()}
         for d in service_dirs():
             deps = d / "dependencies.d"
-            if deps.exists():
-                for dep in deps.iterdir():
-                    # s6 ships virtual bundles (e.g. 'base'); only verify deps
-                    # that name one of our own services.
-                    if dep.name in names or dep.name.startswith("init-"):
-                        self.assertIn(dep.name, names,
-                            f"{d.name} depends on missing service {dep.name}")
+            if not deps.exists():
+                continue
+            for dep in deps.iterdir():
+                if dep.name in self.S6_VIRTUAL:
+                    continue
+                self.assertIn(dep.name, names,
+                    f"{d.name} depends on missing service {dep.name}")
 
 
 if __name__ == "__main__":

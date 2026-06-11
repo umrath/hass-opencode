@@ -49,10 +49,13 @@ Edit `/etc/default/hass-opencode-ci`:
 ```sh
 CI_REMOTE=https://github.com/umrath/hass-opencode.git   # any git remote
 CI_BRANCH=main
+CI_LOG_KEEP=50                                           # run logs to retain
 ```
 
 `CI_REMOTE` is just a git remote to poll — point it at GitHub, Codeberg, a
 mirror, or a local bare repo. The runner only ever **reads** from it.
+`CI_LOG_KEEP` caps `logs/` to the most recent N run logs (default 50); older
+ones are pruned after each run.
 
 ## Uninstall (clean, leaves nothing behind)
 
