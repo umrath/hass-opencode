@@ -8,13 +8,17 @@ ARG BUILD_ARCH
 FROM --platform=$BUILDPLATFORM golang:1.24-trixie AS hab-builder
 
 ARG BUILD_ARCH
+ARG TARGETARCH
 ARG HAB_VERSION=1.6.4
 RUN git clone --depth 1 --branch "${HAB_VERSION}" https://github.com/balloob/home-assistant-build-cli.git /src
 WORKDIR /src
 
-# Cross-compile for the target architecture
-RUN GOARCH=$([ "$BUILD_ARCH" = "aarch64" ] && echo "arm64" || echo "amd64") \
-    CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /hab .
+# Cross-compile for the target architecture. BUILD_ARCH (HA convention) wins if
+# explicitly passed; otherwise derive from buildx's automatic TARGETARCH
+# (arm64/amd64) so a single multi-platform `buildx --platform ...` build works.
+RUN _A="${BUILD_ARCH:-$TARGETARCH}" \
+    && GOARCH=$(case "$_A" in aarch64|arm64) echo arm64 ;; *) echo amd64 ;; esac) \
+    && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /hab .
 
 ## Stage 2: Main add-on image
 FROM $BUILD_FROM
@@ -22,6 +26,7 @@ FROM $BUILD_FROM
 # Build arguments
 ARG BUILD_VERSION
 ARG BUILD_ARCH
+ARG TARGETARCH
 ARG TTYD_VERSION=1.7.7
 ARG OPENCODE_VERSION=latest
 ARG PPQ_PROXY_VERSION=0.1.0
@@ -59,7 +64,8 @@ RUN apt-get update \
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Install ttyd from GitHub releases (not in Debian repos)
-RUN ARCH=$([ "$BUILD_ARCH" = "aarch64" ] && echo "aarch64" || echo "x86_64") \
+RUN _A="${BUILD_ARCH:-$TARGETARCH}" \
+    && ARCH=$(case "$_A" in aarch64|arm64) echo aarch64 ;; *) echo x86_64 ;; esac) \
     && curl -fsSL "https://github.com/tsl0922/ttyd/releases/download/${TTYD_VERSION}/ttyd.${ARCH}" -o /usr/bin/ttyd \
     && chmod +x /usr/bin/ttyd
 
@@ -79,12 +85,14 @@ RUN python3 -m venv /opt/zigporter-venv \
 # opencode-ai postinstall has platform-detection issues with Node 22:
 # install with --ignore-scripts, then manually add the correct binary.
 ARG BUILD_ARCH
-RUN npm config set prefix /usr/local \
+ARG TARGETARCH
+RUN _A="${BUILD_ARCH:-$TARGETARCH}" \
+    && npm config set prefix /usr/local \
     && npm install -g opencode-ai@${OPENCODE_VERSION} --ignore-scripts \
     && cd /usr/local/lib/node_modules/opencode-ai \
-    && case "${BUILD_ARCH}" in \
-         aarch64) npm install opencode-linux-arm64@${OPENCODE_VERSION} ;; \
-         *)       npm install opencode-linux-x64@${OPENCODE_VERSION} ;; \
+    && case "${_A}" in \
+         aarch64|arm64) npm install opencode-linux-arm64@${OPENCODE_VERSION} ;; \
+         *)             npm install opencode-linux-x64@${OPENCODE_VERSION} ;; \
        esac \
     && npm install -g prettier ppq-private-mode@${PPQ_PROXY_VERSION} tsx@${TSX_VERSION} \
     && npm cache clean --force
