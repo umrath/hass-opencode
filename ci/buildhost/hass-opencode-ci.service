@@ -1,0 +1,19 @@
+[Unit]
+Description=hass-opencode CI quality gates (poll-and-run)
+Documentation=https://github.com/umrath/hass-opencode/blob/main/ci/buildhost/README.md
+# Don't fight the image build for the Docker daemon at the exact same instant.
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/hass-opencode-ci
+# Keep HOME inside the CI tree so npm/git caches never touch /root.
+Environment=HOME=/opt/ci/hass-opencode
+Environment=npm_config_cache=/opt/ci/hass-opencode/.npm
+ExecStart=/opt/ci/hass-opencode/bin/run-ci.sh --once
+# Keep it polite: CI is best-effort, must never starve the image builds.
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=true
+TimeoutStartSec=1800

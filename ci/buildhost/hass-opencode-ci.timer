@@ -1,0 +1,15 @@
+[Unit]
+Description=Poll hass-opencode and run CI quality gates
+Documentation=https://github.com/umrath/hass-opencode/blob/main/ci/buildhost/README.md
+
+[Timer]
+# First run shortly after boot, then every 5 minutes. Persistent so a missed
+# slot (host powered off) runs once on the next boot.
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+RandomizedDelaySec=30
+Unit=hass-opencode-ci.service
+
+[Install]
+WantedBy=timers.target
