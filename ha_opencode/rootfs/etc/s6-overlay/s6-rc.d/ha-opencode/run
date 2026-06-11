@@ -142,6 +142,7 @@ if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
         -t macOptionClickForcesSelection=true -t scrollback=5000 \
         -t "theme=${THEME_JSON}" \
         tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh &
+    DESKTOP_PID=$!
 
     # Mobile: no tmux, larger font, localhost
     ttyd -W -p ${MOBILE_PORT} -i 127.0.0.1 -I /opt/ttyd/index.html \
@@ -153,10 +154,22 @@ if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
         -t macOptionClickForcesSelection=true -t scrollback=5000 \
         -t "theme=${THEME_JSON}" \
         /usr/local/bin/opencode-session.sh &
+    MOBILE_PID=$!
 
     sleep 2
     export OC_PROXY_PORT=${INGRESS_PORT} OC_DESKTOP_PORT=${DESKTOP_PORT} OC_MOBILE_PORT=${MOBILE_PORT}
-    exec python3 /usr/share/oc-proxy/proxy.py
+    python3 /usr/share/oc-proxy/proxy.py &
+    PROXY_PID=$!
+
+    # Supervise all three. s6 supervises only this run script, so if one of the
+    # backgrounded ttyd backends (or the proxy) dies we tear the rest down and
+    # exit non-zero — s6 then restarts the whole terminal service cleanly.
+    # On SIGTERM (s6 stop) we forward the shutdown to all three.
+    trap 'kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; exit 0' TERM INT
+    wait -n
+    bashio::log.warning "A terminal component exited; restarting the terminal service"
+    kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null
+    exit 1
 else
     bashio::log.info "Starting ttyd on port ${INGRESS_PORT} (single instance)"
     exec ttyd \

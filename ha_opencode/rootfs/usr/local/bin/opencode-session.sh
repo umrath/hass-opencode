@@ -24,6 +24,11 @@ if [ -z "$SUPERVISOR_TOKEN" ]; then
     echo "Warning: SUPERVISOR_TOKEN not set. MCP integration may not work."
 fi
 
+# Provide zigporter's HA_TOKEN at runtime from the Supervisor token instead of
+# persisting it to /data/.env_vars. Only set when not already supplied (e.g. by
+# a user-defined env_var), so an explicit override still wins.
+export HA_TOKEN="${HA_TOKEN:-$SUPERVISOR_TOKEN}"
+
 
 # Ensure directories exist
 mkdir -p "${HOME}/.local/share/opencode"

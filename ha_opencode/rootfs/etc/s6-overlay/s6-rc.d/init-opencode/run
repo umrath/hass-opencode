@@ -205,10 +205,15 @@ fi
 # zigporter needs HA_URL + HA_TOKEN to talk to Home Assistant.
 # Inside the Supervisor environment, http://supervisor/core proxies to HA Core
 # and SUPERVISOR_TOKEN is a valid Bearer token — same mechanism as hab.
+#
+# Only the non-secret URL/SSL settings are persisted here. HA_TOKEN (the
+# Supervisor manager token) is NOT written to disk — it is set at runtime from
+# $SUPERVISOR_TOKEN by the consumers: the terminal session exports it for
+# zigporter, and the MCP server already falls back to SUPERVISOR_TOKEN. This
+# keeps a full-control token off the persistent /data partition.
 # ==============================================================================
 
 printf 'export HA_URL=http://supervisor/core\n' >> "${ENV_VARS_FILE}"
-printf 'export HA_TOKEN=%q\n' "${SUPERVISOR_TOKEN}" >> "${ENV_VARS_FILE}"
 printf 'export HA_VERIFY_SSL=false\n' >> "${ENV_VARS_FILE}"
 
 # Z2M configuration — auto-discover or use manual override
