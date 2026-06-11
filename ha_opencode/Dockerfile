@@ -33,7 +33,7 @@ ENV NODE_ENV=production \
     npm_config_fund=false
 
 # Install system dependencies in a single layer
-# - Node 22 from nodesource: Required for opencode-ai (Debian ships Node 20)
+# - nodejs/npm: Required for OpenCode
 # - git: Required by OpenCode for version control operations
 # - jq: JSON processing for helper scripts
 # - curl/ca-certificates: For downloading ttyd
@@ -41,19 +41,19 @@ ENV NODE_ENV=production \
 # - tmux: Session persistence to prevent multiple OpenCode instances
 # - chromium: Headless browser for screenshot_url MCP tool (visual verification)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
-    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends \
+        ca-certificates \
         chromium \
+        curl \
         git \
         jq \
         nodejs \
+        npm \
         procps \
         python3 \
         python3-venv \
         tmux \
     && rm -rf /var/lib/apt/lists/*
-# npm is included in the nodesource nodejs package
 
 # Chromium path for puppeteer-core (used by screenshot MCP tool)
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
