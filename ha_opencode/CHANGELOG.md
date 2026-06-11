@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 - **OpenCode runtime update policy** — added a `latest`/`bundled` update policy. By default the add-on installs `opencode-ai@latest` into persistent add-on data and uses that before the bundled fallback, while `bundled` disables OpenCode self-update and uses the image version only. Baseline CPU mode now logs VM CPU passthrough guidance and the known upstream baseline OOM issue.
 
+## 2.2.2
+
+- **Fix MCP server crash** — added `unhandledRejection` and `uncaughtException` handlers to prevent the MCP server process from exiting on transient HA API errors. This fixes the recurring "-32000: connection closed" error.
+
 ## 2.2.1
 
 - **Fix mobile proxy port mismatch** — proxy.py defaults (7681/7682/7683) did not match the ttyd ports (8099/8098/8097). Export correct ports via environment variables.

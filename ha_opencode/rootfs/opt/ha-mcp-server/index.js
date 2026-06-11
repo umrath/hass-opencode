@@ -5253,6 +5253,14 @@ Provide complete automation YAML and any required helper entities.`,
 // START SERVER
 // ============================================================================
 
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("unhandledRejection:", reason);
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("uncaughtException:", error);
+});
+
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
