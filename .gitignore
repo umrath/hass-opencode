@@ -19,3 +19,7 @@ npm-debug.log*
 
 # Build artifacts
 *.tgz
+
+# Python
+__pycache__/
+*.py[cod]

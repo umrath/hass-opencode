@@ -24,6 +24,7 @@ Exit code `0` = all blocking checks passed (advisory warnings are allowed),
 |---|-------|------|------------------|
 | 10 | `yaml` | **blocking** | Every tracked `*.yaml`/`*.yml` parses with PyYAML. |
 | 20 | `config-sync` | **blocking** | `options` keys ↔ `schema` keys match in each `config.yaml`. |
+| 25 | `unittests` | **blocking** | The `tests/` Python `unittest` suite (config, build, assets, changelog, translations, Dockerfile, s6 wiring). Stdlib + PyYAML only. |
 | 30 | `changelog` | advisory | The `version:` in each `config.yaml` has a `## <version>` CHANGELOG heading. |
 | 40 | `shell-syntax` | **blocking** | `bash -n` on all shell scripts (s6 run/finish, profile.d, bin, hooks). |
 | 50 | `shellcheck` | advisory | shellcheck lint of the boot-path scripts (local binary or Docker). |
