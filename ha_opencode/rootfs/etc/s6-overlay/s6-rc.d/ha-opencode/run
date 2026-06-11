@@ -155,6 +155,7 @@ if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
         /usr/local/bin/opencode-session.sh &
 
     sleep 2
+    export OC_PROXY_PORT=${INGRESS_PORT} OC_DESKTOP_PORT=${DESKTOP_PORT} OC_MOBILE_PORT=${MOBILE_PORT}
     exec python3 /usr/share/oc-proxy/proxy.py
 else
     bashio::log.info "Starting ttyd on port ${INGRESS_PORT} (single instance)"
