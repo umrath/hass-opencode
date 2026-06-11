@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
-# Build-host CI runner (poll-and-run).
+# Build-host CI runner — detect-and-run with coalescing single-flight.
 #
 # Maintains its OWN dedicated clone — it never touches the image-build checkout
-# at /opt/hass-opencode or the buildx builder. On each invocation it fetches the
-# tracked branch, and if HEAD moved since the last run, checks it out and runs
-# the in-repo quality gates (ci/run.sh). Designed to be driven by a systemd
-# timer (see hass-opencode-ci.timer) but is also safe to run by hand.
+# at /opt/hass-opencode or the buildx builder. On each invocation it cheaply
+# probes the tracked branch's remote HEAD (git ls-remote, no object download)
+# and only fetches + runs the quality gates (ci/run.sh) when HEAD moved.
+#
+# Concurrency model — serialize + keep only the latest:
+#   At most one run executes at a time (flock). If triggers arrive while a run
+#   is active they are COALESCED into a single pending marker (not stacked);
+#   when the active run finishes it does exactly one more pass, which picks up
+#   the latest origin/<branch>. Net effect: builds serialize and only the most
+#   recent request survives the queue.
+#
+# Trigger sources (all funnel through this single-flight):
+#   * the systemd timer    — fast detector + backstop (see hass-opencode-ci.timer)
+#   * `run-ci.sh` directly — instant trigger, e.g. from a post-push step:
+#         ssh root@buildhost /opt/ci/hass-opencode/bin/run-ci.sh
 #
 # Configuration (env or /etc/default/hass-opencode-ci):
 #   CI_HOME      base dir            (default /opt/ci/hass-opencode)
@@ -14,11 +25,12 @@
 #   CI_LOG_KEEP  run logs to retain  (default 50)
 #
 # Flags:
-#   --force    run even if HEAD has not changed
-#   --once     (default) single pass; provided for clarity
+#   --force    build even if HEAD has not changed
+#   --once     accepted for compatibility (this runner is always single-pass +
+#              coalesced drain); has no extra effect
 set -u
 
-# Optional defaults file (keeps secrets/overrides off the command line).
+# Optional defaults file (keeps overrides off the command line).
 [ -f /etc/default/hass-opencode-ci ] && . /etc/default/hass-opencode-ci
 
 CI_HOME=${CI_HOME:-/opt/ci/hass-opencode}
@@ -38,81 +50,104 @@ REPO="$CI_HOME/repo"
 LOGS="$CI_HOME/logs"
 STATE="$CI_HOME/state"
 LOCK="$CI_HOME/.lock"
+PENDING="$CI_HOME/.pending"
 
 mkdir -p "$CI_HOME" "$LOGS" "$STATE"
-
-# Serialize: if a previous run is still going, bail quietly.
-exec 9>"$LOCK"
-if ! flock -n 9; then
-  echo "[ci] another run holds the lock; skipping"
-  exit 0
-fi
-
 log() { printf '[ci] %s\n' "$*"; }
 
-# Clone on first use (shallow-ish but keep history shallow=1 to save space).
-if [ ! -d "$REPO/.git" ]; then
+ensure_clone() {
+  [ -d "$REPO/.git" ] && return 0
   log "cloning $CI_REMOTE ($CI_BRANCH) -> $REPO"
   rm -rf "$REPO"
-  if ! git clone --quiet --branch "$CI_BRANCH" "$CI_REMOTE" "$REPO"; then
-    log "clone failed"
-    exit 1
+  git clone --quiet --branch "$CI_BRANCH" "$CI_REMOTE" "$REPO"
+}
+
+# One detect+build pass. Arg1 = force (0/1). Records state; sets PASS_RC to the
+# CI exit code (0 when nothing ran). Returns non-zero only on infrastructure
+# failure (clone/ls-remote/fetch), so the caller can distinguish "CI failed"
+# (recorded, PASS_RC!=0) from "could not run".
+run_pass() {
+  local force="$1" remote_sha last_sha short ts logfile rc keep
+
+  ensure_clone || { log "clone failed"; return 1; }
+
+  # Cheap remote HEAD probe — no fetch when nothing changed (the common case).
+  remote_sha=$(git -C "$REPO" ls-remote origin "$CI_BRANCH" 2>/dev/null | awk 'NR==1{print $1}')
+  [ -n "$remote_sha" ] || { log "ls-remote failed"; return 1; }
+  last_sha=$(cat "$STATE/last-sha" 2>/dev/null || echo "")
+
+  if [ "$force" != "1" ] && [ "$remote_sha" = "$last_sha" ]; then
+    log "no new commits on $CI_BRANCH ($remote_sha) — nothing to do"
+    return 0
   fi
-fi
 
-# Fetch the tracked branch.
-if ! git -C "$REPO" fetch --quiet origin "$CI_BRANCH"; then
-  log "fetch failed"
-  exit 1
-fi
+  git -C "$REPO" fetch --quiet origin "$CI_BRANCH" || { log "fetch failed"; return 1; }
+  remote_sha=$(git -C "$REPO" rev-parse "origin/$CI_BRANCH")
+  log "checking out $remote_sha"
+  git -C "$REPO" reset --quiet --hard "origin/$CI_BRANCH"
+  git -C "$REPO" clean -qfdx -e node_modules   # keep cached node_modules between runs
 
-remote_sha=$(git -C "$REPO" rev-parse "origin/$CI_BRANCH")
-last_sha=$(cat "$STATE/last-sha" 2>/dev/null || echo "")
+  short=$(git -C "$REPO" rev-parse --short HEAD)
+  ts=$(date -u +%Y%m%dT%H%M%SZ)
+  logfile="$LOGS/${ts}-${short}.log"
 
-if [ "$FORCE" != "1" ] && [ "$remote_sha" = "$last_sha" ]; then
-  log "no new commits on $CI_BRANCH ($remote_sha) — nothing to do"
-  exit 0
-fi
+  # The CI scripts may not exist on older revisions — treat as a harmless no-op.
+  if [ ! -x "$REPO/ci/run.sh" ]; then
+    log "no ci/run.sh at $short — skipping (will run once the CI scripts land)"
+    echo "$remote_sha" > "$STATE/last-sha"
+    printf 'SKIP %s %s (no ci/run.sh)\n' "$short" "$ts" > "$STATE/last-result"
+    return 0
+  fi
 
-log "checking out $remote_sha"
-# Dedicated clone -> hard reset is safe and keeps the tree pristine.
-git -C "$REPO" reset --quiet --hard "origin/$CI_BRANCH"
-git -C "$REPO" clean -qfdx -e node_modules   # keep cached node_modules between runs
+  log "running quality gates -> $logfile"
+  # errexit stays off: a non-zero CI result must not abort the bookkeeping below.
+  ( cd "$REPO" && CI_NO_COLOR=1 bash ci/run.sh ) 2>&1 | tee "$logfile"
+  rc=${PIPESTATUS[0]}
 
-short=$(git -C "$REPO" rev-parse --short HEAD)
-ts=$(date -u +%Y%m%dT%H%M%SZ)
-logfile="$LOGS/${ts}-${short}.log"
-
-# The CI scripts may not exist yet on older revisions / before they are merged.
-# Treat that as a harmless no-op so the timer can be enabled ahead of the merge.
-if [ ! -x "$REPO/ci/run.sh" ]; then
-  log "no ci/run.sh at $short — skipping (will run once the CI scripts land)"
+  ln -sf "$logfile" "$LOGS/latest.log"
   echo "$remote_sha" > "$STATE/last-sha"
-  printf 'SKIP %s %s (no ci/run.sh)\n' "$short" "$ts" > "$STATE/last-result"
+
+  # Prune old run logs, keeping the most recent CI_LOG_KEEP (latest.log is a
+  # symlink into this set and always survives as the newest entry).
+  keep=${CI_LOG_KEEP:-50}
+  ls -1t "$LOGS"/*.log 2>/dev/null | grep -v '/latest\.log$' | tail -n +"$((keep + 1))" | while IFS= read -r old; do
+    rm -f "$old"
+  done
+
+  if [ "$rc" -eq 0 ]; then
+    printf 'PASS %s %s\n' "$short" "$ts" > "$STATE/last-result"
+    log "RESULT: PASS ($short)"
+  else
+    printf 'FAIL %s %s (rc=%s)\n' "$short" "$ts" "$rc" > "$STATE/last-result"
+    log "RESULT: FAIL ($short, rc=$rc)"
+  fi
+  PASS_RC="$rc"
+  return 0
+}
+
+# ── single-flight with coalescing ────────────────────────────────────────────
+exec 9>"$LOCK"
+if ! flock -n 9; then
+  # A run is active. Record a single pending request (concurrent triggers all
+  # collapse onto this one marker) and exit — the active run will drain it.
+  : > "$PENDING"
+  log "a run is active — queued a follow-up (coalesced); exiting"
   exit 0
 fi
 
-log "running quality gates -> $logfile"
-# errexit stays off (the script never enables it): a non-zero CI result must
-# not abort the state bookkeeping below — we record PASS/FAIL and exit with rc.
-( cd "$REPO" && CI_NO_COLOR=1 bash ci/run.sh ) 2>&1 | tee "$logfile"
-rc=${PIPESTATUS[0]}
+# We hold the lock. Clear any marker left for this execution.
+rm -f "$PENDING"
 
-ln -sf "$logfile" "$LOGS/latest.log"
-echo "$remote_sha" > "$STATE/last-sha"
+PASS_RC=0
+run_pass "$FORCE" || { log "infrastructure error — aborting"; exit 1; }
 
-# Prune old run logs, keeping the most recent CI_LOG_KEEP (latest.log is a
-# symlink into this set and always survives as the newest entry).
-keep=${CI_LOG_KEEP:-50}
-ls -1t "$LOGS"/*.log 2>/dev/null | grep -v '/latest\.log$' | tail -n +"$((keep + 1))" | while IFS= read -r old; do
-  rm -f "$old"
+# Coalescing drain: if trigger(s) arrived while we ran, do one more pass for the
+# latest commit. The flag is cleared first, so further triggers during the pass
+# re-arm exactly one more iteration (never a backlog).
+while [ -f "$PENDING" ]; do
+  rm -f "$PENDING"
+  log "pending request — running once more for the latest commit"
+  run_pass 0 || { log "infrastructure error during drain"; break; }
 done
 
-if [ "$rc" -eq 0 ]; then
-  printf 'PASS %s %s\n' "$short" "$ts" > "$STATE/last-result"
-  log "RESULT: PASS ($short)"
-else
-  printf 'FAIL %s %s (rc=%s)\n' "$short" "$ts" "$rc" > "$STATE/last-result"
-  log "RESULT: FAIL ($short, rc=$rc)"
-fi
-exit "$rc"
+exit "${PASS_RC:-0}"

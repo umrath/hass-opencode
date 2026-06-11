@@ -1,14 +1,17 @@
 [Unit]
-Description=Poll hass-opencode and run CI quality gates
+Description=Detect new hass-opencode commits and trigger CI
 Documentation=https://github.com/umrath/hass-opencode/blob/main/ci/buildhost/README.md
 
 [Timer]
-# First run shortly after boot, then every 5 minutes. Persistent so a missed
-# slot (host powered off) runs once on the next boot.
-OnBootSec=2min
-OnUnitActiveSec=5min
+# Fast commit detection: shortly after boot, then every minute. The runner's
+# per-tick cost when nothing changed is a single `git ls-remote` (no fetch), and
+# runs coalesce, so a tight interval is cheap. Persistent so a missed slot (host
+# powered off) runs once on the next boot. For instant triggering, a post-push
+# step can call run-ci.sh directly (see README) — this timer is the backstop.
+OnBootSec=30s
+OnUnitActiveSec=1min
 Persistent=true
-RandomizedDelaySec=30
+RandomizedDelaySec=5
 Unit=hass-opencode-ci.service
 
 [Install]
