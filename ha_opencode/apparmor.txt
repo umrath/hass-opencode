@@ -1,0 +1,121 @@
+# AppArmor profile for the OpenCode Home Assistant add-on.
+#
+# Replaces Supervisor's auto-generated default with an explicit, reviewed
+# profile. It is intentionally NOT tighter than the working default: the goal
+# is a documented, auditable allow-list, not a hardening experiment that could
+# silently break the add-on. The container runs a broad stack — s6-overlay v3,
+# the OpenCode CLI (npm-installed, extracts libopentui.so to /tmp at runtime),
+# the Node MCP + LSP servers, the PPQ and mobile (oc-proxy) Python proxies,
+# zigporter (own venv), tmux, ttyd, and optional headless Chromium — so most
+# trees are granted read + exec-mmap.
+#
+# NOTE: AppArmor enforcement cannot be validated off-device. Verify on a real
+# Supervisor (Settings → Add-ons → log shows no "apparmor … DENIED") before a
+# release, especially with screenshot_enabled (Chromium) and ppq/mobile proxies
+# turned on.
+
+#include <tunables/global>
+
+profile ha_opencode flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # ── Capabilities ────────────────────────────────────────────────────────
+  # net_raw: ping/diagnostics; setuid/setgid/chown/fowner: s6 drops privileges
+  # and fixes ownership on the data dir; dac_*: cross-uid file access on mounts;
+  # sys_tty_config: ttyd/tmux PTY setup.
+  capability net_raw,
+  capability setgid,
+  capability setuid,
+  capability chown,
+  capability fowner,
+  capability dac_override,
+  capability dac_read_search,
+  capability sys_tty_config,
+
+  # Outbound network for the LLM API, hass-mcp, npm, and the proxies.
+  network,
+
+  # ── Terminal / device nodes ─────────────────────────────────────────────
+  /dev/ptmx rw,
+  /dev/pts/* rw,
+  /dev/tty* rw,
+  /dev/null rw,
+  /dev/zero r,
+  /dev/full rw,
+  /dev/random r,
+  /dev/urandom r,
+  # Chromium uses POSIX shared memory under /dev/shm.
+  /dev/shm/ rw,
+  /dev/shm/** rwk,
+
+  # ── System files (read-only) ────────────────────────────────────────────
+  /etc/** r,
+  /usr/** r,
+  /lib/** r,
+  /proc/** r,
+  /sys/** r,
+
+  # ── Executables (read + exec; mmap where shared libraries are loaded) ─────
+  /bin/** ixr,
+  /usr/bin/** ixmr,
+  /usr/lib/** ixmr,
+  /usr/local/** ixmr,
+  /usr/libexec/** ixr,
+  # Node global modules: opencode-ai, prettier, tsx, ppq-private-mode, and the
+  # native .node/.so addons they dlopen.
+  /usr/local/lib/node_modules/** ixmr,
+
+  # ── s6-overlay v3 init system ─────────────────────────────────────────────
+  /init ixr,
+  /package/** ixr,
+  /command/** ixr,
+  /etc/s6-overlay/** ixr,
+  /run/ rwk,
+  /run/** rwk,
+  /run/** ixmr,
+
+  # ── App data (persistent) ─────────────────────────────────────────────────
+  # HOME=/data; OpenCode self-updates land here and must be executable + mmap.
+  /data/ rwk,
+  /data/** rwkm,
+  /data/** ixmr,
+
+  # ── Mapped Home Assistant directories ─────────────────────────────────────
+  # The working directory and the add-on dev mounts declared in config.yaml.
+  /homeassistant/ r,
+  /homeassistant/** rwk,
+  /addons/ r,
+  /addons/** rwk,
+  /addon_configs/ r,
+  /addon_configs/** rwk,
+  # Forward-compatible: harmless no-ops until these maps are added (gap M2).
+  /ssl/ r,
+  /ssl/** r,
+  /share/ r,
+  /share/** rwk,
+  /media/ r,
+  /media/** rwk,
+  /backup/ r,
+  /backup/** r,
+
+  # ── Home + scratch ─────────────────────────────────────────────────────────
+  /root/ r,
+  /root/** rwk,
+  # /tmp is where OpenCode extracts libopentui.so and Chromium/tmux place
+  # sockets and temp files — needs write, lock, and exec-mmap.
+  /tmp/ rwk,
+  /tmp/** rwkm,
+  /tmp/** ixmr,
+
+  # ── zigporter (isolated venv; /usr/local/bin/zigporter -> here) ───────────
+  /opt/zigporter-venv/ r,
+  /opt/zigporter-venv/** ixmr,
+
+  # ── Bundled Node servers + proxies under /opt ─────────────────────────────
+  /opt/ha-mcp-server/ r,
+  /opt/ha-mcp-server/** ixmr,
+  /opt/ha-lsp-server/ r,
+  /opt/ha-lsp-server/** ixmr,
+  /opt/ttyd/ r,
+  /opt/ttyd/** r,
+}

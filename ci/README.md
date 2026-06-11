@@ -29,6 +29,7 @@ Exit code `0` = all blocking checks passed (advisory warnings are allowed),
 | 40 | `shell-syntax` | **blocking** | `bash -n` on all shell scripts (s6 run/finish, profile.d, bin, hooks). |
 | 50 | `shellcheck` | advisory | shellcheck lint of the boot-path scripts (local binary or Docker). |
 | 60 | `hadolint` | advisory | hadolint lint of `ha_opencode/Dockerfile` (local binary or Docker). |
+| 65 | `apparmor` | advisory | `apparmor_parser -Q` syntax/include validation of `ha_opencode/apparmor.txt`. |
 | 70 | `js-tests` | **blocking** | `vitest` suites for the bundled MCP and LSP Node servers. |
 
 Advisory checks **never fail the build**; they surface warnings only. This keeps
