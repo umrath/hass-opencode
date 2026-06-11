@@ -74,10 +74,13 @@ RUN python3 -m venv /opt/zigporter-venv \
     && ln -s /opt/zigporter-venv/bin/zigporter /usr/local/bin/zigporter
 
 # Install OpenCode, platform-specific binary, Prettier, PPQ proxy, tsx
-# opencode-ai postinstall has platform-detection issues with Node 22.
-# Install it with --ignore-scripts, then manually add the correct binary.
+# Nodesource Node 22 uses /usr prefix. Force /usr/local so the init script
+# finds packages at the expected path (/usr/local/lib/node_modules/).
+# opencode-ai postinstall has platform-detection issues with Node 22:
+# install with --ignore-scripts, then manually add the correct binary.
 ARG BUILD_ARCH
-RUN npm install -g opencode-ai@${OPENCODE_VERSION} --ignore-scripts \
+RUN npm config set prefix /usr/local \
+    && npm install -g opencode-ai@${OPENCODE_VERSION} --ignore-scripts \
     && cd /usr/local/lib/node_modules/opencode-ai \
     && case "${BUILD_ARCH}" in \
          aarch64) npm install opencode-linux-arm64@${OPENCODE_VERSION} ;; \
