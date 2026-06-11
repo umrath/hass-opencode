@@ -45,6 +45,7 @@ TERMINAL_THEME=$(bashio::config 'terminal_theme')
 FONT_SIZE=$(bashio::config 'font_size')
 CURSOR_STYLE=$(bashio::config 'cursor_style')
 CURSOR_BLINK=$(bashio::config 'cursor_blink')
+MOBILE_PROXY_ENABLED=$(bashio::config 'mobile_proxy_enabled' || echo "true")
 
 bashio::log.info "Terminal theme: ${TERMINAL_THEME}"
 
@@ -105,7 +106,7 @@ get_theme() {
 
 THEME_JSON=$(get_theme "${TERMINAL_THEME}")
 
-bashio::log.info "Starting ttyd on port 8099 (Home Assistant ingress)..."
+bashio::log.info "Mobile proxy: ${MOBILE_PROXY_ENABLED}"
 
 # ==============================================================================
 # Start ttyd with configured options
@@ -120,20 +121,58 @@ bashio::log.info "Starting ttyd on port 8099 (Home Assistant ingress)..."
 # paste). macOptionClickForcesSelection lets macOS users select text with
 # Option+drag while OpenCode has mouse reporting enabled (the Shift+drag
 # override is Windows/Linux-only in xterm.js).
-exec ttyd \
-    -W \
-    -p 8099 \
-    -I /opt/ttyd/index.html \
-    -t fontSize="${FONT_SIZE}" \
-    -t fontWeight=normal \
-    -t fontWeightBold=bold \
-    -t letterSpacing=0 \
-    -t lineHeight=1.0 \
-    -t cursorBlink="${CURSOR_BLINK}" \
-    -t cursorStyle="${CURSOR_STYLE}" \
-    -t drawBoldTextInBrightColors=true \
-    -t minimumContrastRatio=4.5 \
-    -t macOptionClickForcesSelection=true \
-    -t scrollback=10000 \
-    -t "theme=${THEME_JSON}" \
-    tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh
+
+INGRESS_PORT=8099
+DESKTOP_PORT=8098
+MOBILE_PORT=8097
+
+if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
+    bashio::log.info "Starting dual ttyd + mobile proxy (desktop:${DESKTOP_PORT}, mobile:${MOBILE_PORT})"
+
+    FONT_SIZE_MOBILE=$((FONT_SIZE + 2))
+    [ "${FONT_SIZE_MOBILE}" -gt 24 ] && FONT_SIZE_MOBILE=24
+
+    # Desktop: tmux, normal font, localhost
+    ttyd -W -p ${DESKTOP_PORT} -i 127.0.0.1 -I /opt/ttyd/index.html \
+        -t fontSize="${FONT_SIZE}" \
+        -t fontWeight=normal -t fontWeightBold=bold \
+        -t letterSpacing=0 -t lineHeight=1.0 \
+        -t cursorBlink="${CURSOR_BLINK}" -t cursorStyle="${CURSOR_STYLE}" \
+        -t drawBoldTextInBrightColors=true -t minimumContrastRatio=4.5 \
+        -t macOptionClickForcesSelection=true -t scrollback=5000 \
+        -t "theme=${THEME_JSON}" \
+        tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh &
+
+    # Mobile: no tmux, larger font, localhost
+    ttyd -W -p ${MOBILE_PORT} -i 127.0.0.1 -I /opt/ttyd/index.html \
+        -t fontSize="${FONT_SIZE_MOBILE}" \
+        -t fontWeight=normal -t fontWeightBold=bold \
+        -t letterSpacing=0 -t lineHeight=1.0 \
+        -t cursorBlink="${CURSOR_BLINK}" -t cursorStyle="${CURSOR_STYLE}" \
+        -t drawBoldTextInBrightColors=true -t minimumContrastRatio=4.5 \
+        -t macOptionClickForcesSelection=true -t scrollback=5000 \
+        -t "theme=${THEME_JSON}" \
+        /usr/local/bin/opencode-session.sh &
+
+    sleep 2
+    exec python3 /usr/share/oc-proxy/proxy.py
+else
+    bashio::log.info "Starting ttyd on port ${INGRESS_PORT} (single instance)"
+    exec ttyd \
+        -W \
+        -p ${INGRESS_PORT} \
+        -I /opt/ttyd/index.html \
+        -t fontSize="${FONT_SIZE}" \
+        -t fontWeight=normal \
+        -t fontWeightBold=bold \
+        -t letterSpacing=0 \
+        -t lineHeight=1.0 \
+        -t cursorBlink="${CURSOR_BLINK}" \
+        -t cursorStyle="${CURSOR_STYLE}" \
+        -t drawBoldTextInBrightColors=true \
+        -t minimumContrastRatio=4.5 \
+        -t macOptionClickForcesSelection=true \
+        -t scrollback=5000 \
+        -t "theme=${THEME_JSON}" \
+        tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh
+fi

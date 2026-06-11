@@ -110,6 +110,7 @@ RUN chmod +x /usr/local/bin/* \
     && chmod +x /etc/s6-overlay/s6-rc.d/ppq-private-proxy/run \
     && chmod +x /etc/profile.d/hab-esphome.sh \
     && chmod +x /etc/profile.d/zigporter-z2m.sh \
+    && chmod +x /usr/share/oc-proxy/proxy.py \
     && mkdir -p /data/.local/share/opencode /data/.config/opencode
 
 # Build the custom ttyd index page (served via -I at runtime): ttyd's page is

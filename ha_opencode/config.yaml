@@ -1,7 +1,7 @@
 ---
 name: "OpenCode"
 description: "AI coding agent for editing Home Assistant configuration with deep MCP integration and LSP support"
-version: "2.1.1"
+version: "2.2.0"
 slug: "ha_opencode"
 image: "ghcr.io/umrath/ha_opencode"
 url: "https://github.com/umrath/hass-opencode"
@@ -51,6 +51,7 @@ options:
   # Feature toggles
   mcp_enabled: true
   lsp_enabled: true
+  mobile_proxy_enabled: true
 
   # CPU mode: auto (detect), baseline (for older CPUs), regular (force AVX2)
   cpu_mode: "auto"
@@ -107,6 +108,7 @@ schema:
   # Feature toggles
   mcp_enabled: bool
   lsp_enabled: bool
+  mobile_proxy_enabled: bool
   
   # CPU mode
   cpu_mode: list(auto|baseline|regular)
