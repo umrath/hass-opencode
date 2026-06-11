@@ -73,12 +73,17 @@ RUN python3 -m venv /opt/zigporter-venv \
     && /opt/zigporter-venv/bin/pip install --no-cache-dir zigporter \
     && ln -s /opt/zigporter-venv/bin/zigporter /usr/local/bin/zigporter
 
-# Install OpenCode, Prettier, and the PPQ private-mode proxy globally
-# - OpenCode: AI coding agent (pin version in build.yaml for reproducible builds)
-# - Prettier: Code formatter for YAML files, configured for HA conventions
-# - ppq-private-mode: local OpenAI-compatible encryption proxy for PPQ TEE models
-# - tsx: pinned runtime for the PPQ package's TypeScript entrypoint
-RUN npm install -g opencode-ai@${OPENCODE_VERSION} prettier ppq-private-mode@${PPQ_PROXY_VERSION} tsx@${TSX_VERSION} \
+# Install OpenCode, platform-specific binary, Prettier, PPQ proxy, tsx
+# opencode-ai postinstall has platform-detection issues with Node 22.
+# Install it with --ignore-scripts, then manually add the correct binary.
+ARG BUILD_ARCH
+RUN npm install -g opencode-ai@${OPENCODE_VERSION} --ignore-scripts \
+    && cd /usr/local/lib/node_modules/opencode-ai \
+    && case "${BUILD_ARCH}" in \
+         aarch64) npm install opencode-linux-arm64@${OPENCODE_VERSION} ;; \
+         *)       npm install opencode-linux-x64@${OPENCODE_VERSION} ;; \
+       esac \
+    && npm install -g prettier ppq-private-mode@${PPQ_PROXY_VERSION} tsx@${TSX_VERSION} \
     && npm cache clean --force
 
 # Copy package.json files first for better layer caching
