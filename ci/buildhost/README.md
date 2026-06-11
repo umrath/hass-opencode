@@ -40,10 +40,15 @@ runs the in-repo quality gates ([`../run.sh`](../run.sh)) automatically.
   `flock` — it cannot starve the image builds.
 - **Graceful before merge:** if a revision has no `ci/run.sh` yet, the runner
   records `SKIP` and exits 0, so the timer can be enabled ahead of the merge.
+- **Self-updating:** when a new commit changes `run-ci.sh` or the systemd units,
+  the runner reinstalls them itself (`bash -n`-validated, `daemon-reload` only on
+  real change), so pipeline changes ship automatically. Only the **first**
+  install is manual (bootstrap, below).
 
 ## Install
 
-On the build host, from a checkout of this repo:
+Only needed **once** to bootstrap (afterwards the runner self-updates). On the
+build host, from a checkout of this repo:
 
 ```sh
 sudo ci/buildhost/install.sh            # install + enable the 1-min detect timer

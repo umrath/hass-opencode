@@ -18,6 +18,10 @@
 #   * `run-ci.sh` directly — instant trigger, e.g. from a post-push step:
 #         ssh root@buildhost /opt/ci/hass-opencode/bin/run-ci.sh
 #
+# Self-updating: when a checked-out commit changes the runner or the systemd
+# units, the runner reinstalls them automatically (see self_update) — no manual
+# install.sh re-run. Only the very first install is manual (bootstrap).
+#
 # Configuration (env or /etc/default/hass-opencode-ci):
 #   CI_HOME      base dir            (default /opt/ci/hass-opencode)
 #   CI_REMOTE    git remote to poll  (default https://github.com/umrath/hass-opencode.git)
@@ -62,6 +66,38 @@ ensure_clone() {
   git clone --quiet --branch "$CI_BRANCH" "$CI_REMOTE" "$REPO"
 }
 
+# Keep the deployed runner + systemd units in sync with the checked-out repo, so
+# changes to the build-host pipeline itself ship automatically (no manual
+# install.sh re-run). Called with the repo at the latest commit. Never fails the
+# run — any hiccup is logged and ignored. A new runner is validated with
+# `bash -n` first so a syntactically broken one is never deployed; it takes
+# effect on the NEXT invocation (the current process keeps its loaded code).
+self_update() {
+  local src="$REPO/ci/buildhost" changed=0 u
+  [ -d "$src" ] || return 0
+
+  if [ -f "$src/run-ci.sh" ] && ! cmp -s "$src/run-ci.sh" "$CI_HOME/bin/run-ci.sh"; then
+    if bash -n "$src/run-ci.sh" 2>/dev/null; then
+      install -m 0755 "$src/run-ci.sh" "$CI_HOME/bin/run-ci.sh" \
+        && log "self-update: runner refreshed (applies on next run)"
+    else
+      log "self-update: new runner failed bash -n — keeping current"
+    fi
+  fi
+
+  command -v systemctl >/dev/null 2>&1 || return 0
+  for u in hass-opencode-ci.service hass-opencode-ci.timer; do
+    if [ -f "$src/$u" ] && ! cmp -s "$src/$u" "/etc/systemd/system/$u"; then
+      install -m 0644 "$src/$u" "/etc/systemd/system/$u" && { changed=1; log "self-update: $u refreshed"; }
+    fi
+  done
+  if [ "$changed" = "1" ]; then
+    systemctl daemon-reload 2>/dev/null || true
+    systemctl restart hass-opencode-ci.timer 2>/dev/null || true
+    log "self-update: systemd reloaded"
+  fi
+}
+
 # One detect+build pass. Arg1 = force (0/1). Records state; sets PASS_RC to the
 # CI exit code (0 when nothing ran). Returns non-zero only on infrastructure
 # failure (clone/ls-remote/fetch), so the caller can distinguish "CI failed"
@@ -86,6 +122,9 @@ run_pass() {
   log "checking out $remote_sha"
   git -C "$REPO" reset --quiet --hard "origin/$CI_BRANCH"
   git -C "$REPO" clean -qfdx -e node_modules   # keep cached node_modules between runs
+
+  # Ship pipeline self-changes (runner/units) before running the gates.
+  self_update || true
 
   short=$(git -C "$REPO" rev-parse --short HEAD)
   ts=$(date -u +%Y%m%dT%H%M%SZ)
