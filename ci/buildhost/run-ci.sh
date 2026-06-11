@@ -102,6 +102,60 @@ self_update() {
   fi
 }
 
+# Release stage (runs only after the quality gates pass). Builds + pushes the
+# multi-arch image ONLY when ci/RELEASE_TARGET names a version we have not built
+# yet — decoupled from config.yaml.version. This guarantees the image for a
+# version exists BEFORE config.yaml advertises it to Home Assistant.
+# Never changes the repo (no commit) → no detection loop. Arg1 = logfile.
+maybe_build_image() {
+  local logfile="$1" target last
+  [ -f "$REPO/ci/RELEASE_TARGET" ] || { log "image: no ci/RELEASE_TARGET — skipping"; return 0; }
+  [ -x "$REPO/ci/buildhost/build-image.sh" ] || { log "image: no build-image.sh — skipping"; return 0; }
+  target=$(tr -d ' \t\r\n' < "$REPO/ci/RELEASE_TARGET")
+  last=$(cat "$STATE/last-built-version" 2>/dev/null || echo "")
+  [ -n "$target" ] || { log "image: empty RELEASE_TARGET — skipping"; return 0; }
+  if [ "$target" = "$last" ]; then
+    log "image: $target already built — skipping"
+    return 0
+  fi
+  log "image: building $target (last built: ${last:-none})"
+  if "$REPO/ci/buildhost/build-image.sh" "$target" 2>&1 | tee -a "$logfile"; then
+    echo "$target" > "$STATE/last-built-version"
+    printf 'IMAGE_OK %s\n' "$target" > "$STATE/last-image-result"
+    log "image: pushed $target"
+    activate_version "$target" "$logfile"
+  else
+    printf 'IMAGE_FAIL %s\n' "$target" > "$STATE/last-image-result"
+    log "image: BUILD FAILED for $target — config.yaml version NOT advanced"
+  fi
+}
+
+# Phase 2 (opt-in): set config.yaml.version = the just-built version and push,
+# so HA picks up the release now that the image exists. OFF by default — enable
+# with CI_AUTO_ACTIVATE=1 AND a CI_PUSH_REMOTE. Loop-safe: changes config/CHANGELOG
+# but NOT ci/RELEASE_TARGET, so it never re-triggers a build; commit carries
+# [skip ci] so it doesn't re-run the gates either.
+activate_version() {
+  local target="$1" logfile="$2" cur
+  [ "${CI_AUTO_ACTIVATE:-0}" = "1" ] || { log "image: auto-activate off — set config.yaml version to $target manually (commit 2)"; return 0; }
+  [ -n "${CI_PUSH_REMOTE:-}" ] || { log "image: CI_AUTO_ACTIVATE set but no CI_PUSH_REMOTE — skipping activation"; return 0; }
+  git -C "$REPO" fetch -q origin "$CI_BRANCH" || { log "activate: fetch failed"; return 0; }
+  git -C "$REPO" reset -q --hard "origin/$CI_BRANCH"
+  cur=$(grep -m1 '^version:' "$REPO/ha_opencode/config.yaml" | sed 's/.*"\(.*\)".*/\1/')
+  [ "$cur" = "$target" ] && { log "activate: already at $target"; return 0; }
+  sed -i "s/^version: .*/version: \"$target\"/" "$REPO/ha_opencode/config.yaml"
+  if grep -q '^## Unreleased' "$REPO/ha_opencode/CHANGELOG.md" 2>/dev/null; then
+    sed -i "0,/^## Unreleased/s//## $target/" "$REPO/ha_opencode/CHANGELOG.md"
+  fi
+  git -C "$REPO" -c user.name=ci -c user.email=ci@local \
+    commit -qam "chore: activate $target (image built) [skip ci]" || return 0
+  if git -C "$REPO" push -q "$CI_PUSH_REMOTE" HEAD:"$CI_BRANCH" 2>&1 | tee -a "$logfile"; then
+    log "activate: version $target pushed"
+  else
+    log "activate: push failed (likely non-fast-forward) — set version manually"
+  fi
+}
+
 # One detect+build pass. Arg1 = force (0/1). Records state; sets PASS_RC to the
 # CI exit code (0 when nothing ran). Returns non-zero only on infrastructure
 # failure (clone/ls-remote/fetch), so the caller can distinguish "CI failed"
@@ -169,23 +223,11 @@ run_pass() {
   if [ "$rc" -eq 0 ]; then
     printf 'PASS %s %s\n' "$short" "$ts" > "$STATE/last-result"
     log "RESULT: PASS ($short)"
-
-    # Auto-bump version if write access is configured (CI_PUSH_REMOTE set).
-    # This is the final step of the two-commit workflow: quality gates + image
-    # build passed → bump version + push so HA sees the new release.
-    if [ -n "${CI_PUSH_REMOTE:-}" ] && [ -x "$REPO/ci/version-bump.sh" ]; then
-      if ( cd "$REPO" && git remote get-url push-origin >/dev/null 2>&1 ) || \
-         ( cd "$REPO" && git remote add push-origin "$CI_PUSH_REMOTE" 2>/dev/null ); then
-        log "CI passed — running version bump"
-        if ( cd "$REPO" && CI_PUSH_REMOTE="$CI_PUSH_REMOTE" bash ci/version-bump.sh ) 2>&1 | tee -a "$logfile"; then
-          log "version bump pushed to $CI_BRANCH"
-        else
-          log "version bump failed (see log) — CI result still PASS"
-        fi
-      else
-        log "CI_PUSH_REMOTE set but cannot configure push remote — skipping version bump"
-      fi
-    fi
+    # v2 release flow: build+push the image only when ci/RELEASE_TARGET names a
+    # not-yet-built version (decoupled from config.yaml.version), so HA never
+    # sees a version before its image exists. Version activation is a SEPARATE,
+    # off-by-default step (see activate_version) — never auto-pushed here.
+    maybe_build_image "$logfile"
   else
     printf 'FAIL %s %s (rc=%s)\n' "$short" "$ts" "$rc" > "$STATE/last-result"
     log "RESULT: FAIL ($short, rc=$rc)"
