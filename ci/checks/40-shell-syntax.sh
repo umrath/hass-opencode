@@ -19,8 +19,11 @@ is_shell() {
   case "$1" in
     *.sh|*.bash) return 0 ;;
   esac
-  # by shebang (s6 run scripts and bare-name helpers)
-  read -r first < "$1" 2>/dev/null || return 1
+  # by shebang (s6 run scripts and bare-name helpers). Reset first each call so
+  # a stale value never leaks across calls; `|| true` keeps a single-line file
+  # without a trailing newline (read returns 1 at EOF but still sets first).
+  first=""
+  IFS= read -r first < "$1" 2>/dev/null || true
   case "$first" in
     '#!'*sh|'#!'*sh\ *|'#!'*bash|'#!'*bash\ *|'#!'*bashio|'#!'*bashio*) return 0 ;;
   esac

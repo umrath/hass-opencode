@@ -92,10 +92,10 @@ if [ ! -x "$REPO/ci/run.sh" ]; then
 fi
 
 log "running quality gates -> $logfile"
-set +e
+# errexit stays off (the script never enables it): a non-zero CI result must
+# not abort the state bookkeeping below — we record PASS/FAIL and exit with rc.
 ( cd "$REPO" && CI_NO_COLOR=1 bash ci/run.sh ) 2>&1 | tee "$logfile"
 rc=${PIPESTATUS[0]}
-set -e 2>/dev/null || true
 
 ln -sf "$logfile" "$LOGS/latest.log"
 echo "$remote_sha" > "$STATE/last-sha"
