@@ -1,4 +1,4 @@
 ---
-name: OpenCode
-url: https://github.com/magnusoverli/opencode
-maintainer: Magnus Overli
+name: OpenCode for Home Assistant
+url: https://github.com/umrath/hass-opencode
+maintainer: umrath
