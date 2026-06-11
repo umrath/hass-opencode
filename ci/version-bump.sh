@@ -27,4 +27,5 @@ if grep -q "^## Unreleased" "$CHANGELOG"; then
 fi
 
 git add "$CONFIG" "$CHANGELOG"
-git commit -m "chore: bump version to $new" || true
+git commit -m "chore: bump version to $new [skip ci]" || true
+git push origin main || true

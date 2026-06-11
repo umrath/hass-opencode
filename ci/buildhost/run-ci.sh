@@ -23,10 +23,14 @@
 # install.sh re-run. Only the very first install is manual (bootstrap).
 #
 # Configuration (env or /etc/default/hass-opencode-ci):
-#   CI_HOME      base dir            (default /opt/ci/hass-opencode)
-#   CI_REMOTE    git remote to poll  (default https://github.com/umrath/hass-opencode.git)
-#   CI_BRANCH    branch to track     (default main)
-#   CI_LOG_KEEP  run logs to retain  (default 50)
+#   CI_HOME        base dir            (default /opt/ci/hass-opencode)
+#   CI_REMOTE      git remote to poll  (default https://github.com/umrath/hass-opencode.git)
+#   CI_BRANCH      branch to track     (default main)
+#   CI_LOG_KEEP    run logs to retain  (default 50)
+#   CI_PUSH_REMOTE write-capable remote for version bumps (optional)
+#                  Set to a git URL with credentials, e.g.:
+#                  https://TOKEN@github.com/umrath/hass-opencode.git
+#                  When empty, version-bump is skipped.
 #
 # Flags:
 #   --force    build even if HEAD has not changed
@@ -123,6 +127,15 @@ run_pass() {
   git -C "$REPO" reset --quiet --hard "origin/$CI_BRANCH"
   git -C "$REPO" clean -qfdx -e node_modules   # keep cached node_modules between runs
 
+  # Skip commits tagged with [skip ci] — they are auto-generated (e.g. version
+  # bumps after a successful image build) and must not re-trigger CI.
+  if git -C "$REPO" log -1 --format='%B' | grep -qF '[skip ci]'; then
+    log "commit contains [skip ci] — skipping CI"
+    echo "$remote_sha" > "$STATE/last-sha"
+    printf 'PASS %s %s (skip-ci)\n' "$(git -C "$REPO" rev-parse --short HEAD)" "$(date -u +%Y%m%dT%H%M%SZ)" > "$STATE/last-result"
+    return 0
+  fi
+
   # Ship pipeline self-changes (runner/units) before running the gates.
   self_update || true
 
@@ -156,6 +169,23 @@ run_pass() {
   if [ "$rc" -eq 0 ]; then
     printf 'PASS %s %s\n' "$short" "$ts" > "$STATE/last-result"
     log "RESULT: PASS ($short)"
+
+    # Auto-bump version if write access is configured (CI_PUSH_REMOTE set).
+    # This is the final step of the two-commit workflow: quality gates + image
+    # build passed → bump version + push so HA sees the new release.
+    if [ -n "${CI_PUSH_REMOTE:-}" ] && [ -x "$REPO/ci/version-bump.sh" ]; then
+      if ( cd "$REPO" && git remote get-url push-origin >/dev/null 2>&1 ) || \
+         ( cd "$REPO" && git remote add push-origin "$CI_PUSH_REMOTE" 2>/dev/null ); then
+        log "CI passed — running version bump"
+        if ( cd "$REPO" && CI_PUSH_REMOTE="$CI_PUSH_REMOTE" bash ci/version-bump.sh ) 2>&1 | tee -a "$logfile"; then
+          log "version bump pushed to $CI_BRANCH"
+        else
+          log "version bump failed (see log) — CI result still PASS"
+        fi
+      else
+        log "CI_PUSH_REMOTE set but cannot configure push remote — skipping version bump"
+      fi
+    fi
   else
     printf 'FAIL %s %s (rc=%s)\n' "$short" "$ts" "$rc" > "$STATE/last-result"
     log "RESULT: FAIL ($short, rc=$rc)"
