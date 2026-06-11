@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Build-host CI runner — detect-and-run with coalescing single-flight.
+# self-update proof marker 205048
 #
 # Maintains its OWN dedicated clone — it never touches the image-build checkout
 # at /opt/hass-opencode or the buildx builder. On each invocation it cheaply
