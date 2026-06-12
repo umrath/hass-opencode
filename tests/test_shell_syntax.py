@@ -35,6 +35,9 @@ SHELL_SCRIPTS = [
     "ci/lib.sh",
     # CI checks
     "ci/checks/22-changelog-content.sh",
+    # scripts
+    "scripts/setup-git-hooks.sh",
+    "scripts/update-version-shield.sh",
 ]
 
 
