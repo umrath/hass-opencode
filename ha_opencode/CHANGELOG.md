@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.4
 
 - **Fix watchdog restart loop** — added s6 finish script to kill orphaned ttyd processes on service stop. In mobile proxy mode, background ttyd processes would survive restarts and block ingress ports.
 
