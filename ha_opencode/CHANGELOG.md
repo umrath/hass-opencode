@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- **Fix watchdog restart loop** — added s6 finish script to kill orphaned ttyd processes on service stop. In mobile proxy mode, background ttyd processes would survive restarts and block ingress ports.
+
 - **OpenCode runtime update policy** — added a `latest`/`bundled` update policy. By default the app installs `opencode-ai@latest` into persistent app data and uses that before the bundled fallback, while `bundled` disables OpenCode self-update and uses the image version only. Baseline CPU mode now logs VM CPU passthrough guidance and the known upstream baseline OOM issue.
 
 ## 2.2.3
