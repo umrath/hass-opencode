@@ -6,6 +6,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.2.8
+
+- **Fix proxy startup** — added readiness check (poll ingress port, exit with clear error on failure) and lifecycle tests to prevent watchdog restart loops.
+- **Test coverage** — added integration-style lifecycle tests for the mobile proxy and structural tests for init, termservice, session, and build-image scripts.
+
 ## 2.2.7
 
 - **Fix MCP server stability** — removed `process.exit` when SUPERVISOR_TOKEN is missing (server stays alive), increased MCP tool timeout from 10s to 60s.
