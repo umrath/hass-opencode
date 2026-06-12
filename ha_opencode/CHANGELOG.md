@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.21
 
 - **Fix arm64 build** — reverted broken syntax. Shell-syntax now validated by unit tests.
 
