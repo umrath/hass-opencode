@@ -130,7 +130,8 @@ const HA_BLOG_URL = `${HA_DOCS_BASE}/blog`;
 
 if (!SUPERVISOR_TOKEN) {
   console.error("Error: SUPERVISOR_TOKEN environment variable is required");
-  process.exit(1);
+  console.error("MCP server will stay alive but API calls will fail.");
+  console.error("Ensure SUPERVISOR_TOKEN is in the parent environment.");
 }
 
 // ============================================================================
