@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.14
 
 - **Three-service s6 architecture** — replaced monolithic multiprocess bash with independent s6 services. Proxy, desktop ttyd, mobile ttyd each supervised individually.
 
