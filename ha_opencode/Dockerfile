@@ -20,7 +20,7 @@ RUN _A="${BUILD_ARCH:-$TARGETARCH}" \
     && GOARCH=$(case "$_A" in aarch64|arm64) echo arm64 ;; *) echo amd64 ;; esac) \
     && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /hab .
 
-## Stage 2: Main add-on image
+## Stage 2: Main app image
 FROM $BUILD_FROM
 
 # Build arguments

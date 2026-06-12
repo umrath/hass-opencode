@@ -25,7 +25,7 @@ fi
 
 if [ -z "${PPQ_API_KEY:-}" ]; then
     bashio::log.error "PPQ private mode is enabled, but no PPQ API key is configured."
-    bashio::log.error "Set the PPQ API Key option in the add-on Configuration tab, then restart the add-on."
+    bashio::log.error "Set the PPQ API Key option in the app Configuration tab, then restart the app."
     exec sleep infinity
 fi
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build + push the add-on Docker image for ONE version.
+# Build + push the app Docker image for ONE version.
 #
 # Invoked by the build-host runner's release stage (run-ci.sh:maybe_build_image)
 # once the quality gates pass and ci/RELEASE_TARGET names a not-yet-built version.

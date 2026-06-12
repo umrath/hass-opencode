@@ -10,7 +10,7 @@ zigporter() {
                 echo "To configure:" >&2
                 echo "  1. Go to Settings -> Add-ons -> OpenCode -> Configuration" >&2
                 echo "  2. Set the 'z2m_url' field to your Z2M URL, for example http://homeassistant.local:8099" >&2
-                echo "  3. Restart the OpenCode add-on" >&2
+                echo "  3. Restart the OpenCode app" >&2
                 echo "" >&2
                 echo "Commands that work without Z2M: rename-entity, rename-device," >&2
                 echo "  inspect, list-devices, stale, fix-device, check, export" >&2

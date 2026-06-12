@@ -1,6 +1,6 @@
 # Test suite
 
-Dependency-light `unittest` tests for the add-on metadata, build, assets and
+Dependency-light `unittest` tests for the app metadata, build, assets and
 boot wiring. They run with **stdlib `unittest` + PyYAML only** — no pytest, no
 pip — so they work anywhere the CI YAML checks already run (including the build
 host, which has no pip).

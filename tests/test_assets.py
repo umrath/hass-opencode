@@ -1,4 +1,4 @@
-"""Tests for required add-on assets (icons, logos, docs)."""
+"""Tests for required app assets (icons, logos, docs)."""
 
 import unittest
 from pathlib import Path
@@ -41,7 +41,7 @@ class TestProjectAssets(unittest.TestCase):
     def test_stable_addon_has_readme(self):
         self.assertTrue((REPO_ROOT / "ha_opencode" / "README.md").exists()
                         or (REPO_ROOT / "README.md").exists(),
-            "an add-on or root README must document the stable add-on")
+            "an app or root README must document the stable app")
 
 
 if __name__ == "__main__":

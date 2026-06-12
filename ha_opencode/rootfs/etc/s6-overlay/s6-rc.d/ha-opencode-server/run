@@ -42,7 +42,7 @@ if bashio::var.has_value "${HOST_PORT}"; then
     bashio::log.info "Connect from another computer with: opencode attach http://<home-assistant-host>:${HOST_PORT}"
 else
     bashio::log.warning "Home Assistant port mapping for ${SERVER_PORT}/tcp is disabled; LAN clients cannot connect yet."
-    bashio::log.info "Map ${SERVER_PORT}/tcp in the add-on Network settings, then connect with: opencode attach http://<home-assistant-host>:<mapped-host-port>"
+    bashio::log.info "Map ${SERVER_PORT}/tcp in the app Network settings, then connect with: opencode attach http://<home-assistant-host>:<mapped-host-port>"
 fi
 bashio::log.info "If OpenCode prints http://0.0.0.0:${SERVER_PORT}, that is the internal container listener."
 bashio::log.info "Starting OpenCode LAN server: opencode serve --hostname 0.0.0.0 --port ${SERVER_PORT}"

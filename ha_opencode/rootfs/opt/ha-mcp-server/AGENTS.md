@@ -44,7 +44,7 @@ You MUST follow these rules strictly:
 - You are running inside the OpenCode app
 - The current directory (`/homeassistant`) contains the live Home Assistant configuration
 - Changes to YAML files here directly affect the Home Assistant instance
-- If add-on folder access is enabled, `/addons` and `/addon_configs` are available for Home Assistant add-on development. Treat `/addon_configs` as sensitive and only inspect or modify these folders when the user explicitly asks.
+- If app folder access is enabled, `/addons` and `/addon_configs` are available for Home Assistant app development. Treat `/addon_configs` as sensitive and only inspect or modify these folders when the user explicitly asks.
 - You may have access to MCP tools for interacting with Home Assistant (check with the user)
 
 ## Home Assistant Interaction Model
@@ -120,7 +120,7 @@ Key commands:
 
 **Output format**: Use `--json` on listing/inspect commands for structured output (ideal for AI parsing). Rename commands output diffs and confirmation text.
 
-zigporter is pre-authenticated via the Supervisor token. Z2M commands (`list-z2m`, `network-map --backend z2m`) require Z2M URL configuration in the add-on settings.
+zigporter is pre-authenticated via the Supervisor token. Z2M commands (`list-z2m`, `network-map --backend z2m`) require Z2M URL configuration in the app settings.
 
 **Important limitations**:
 - `rename-entity` / `rename-device` do NOT patch Jinja2 template expressions (e.g. `{{ states('old.id') }}`). A warning is printed listing affected files — inform the user these need manual review after renaming.

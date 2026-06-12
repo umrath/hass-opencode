@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Blocking: in every add-on config.yaml, the `options` keys and the `schema`
+# Blocking: in every app config.yaml, the `options` keys and the `schema`
 # keys must be exactly in sync. A stray option with no schema entry (or vice
 # versa) is silently ignored by Supervisor and a frequent source of bugs.
 set -u

@@ -54,7 +54,7 @@ printf '%s\n' "${OPENCODE_UPDATE_POLICY}" > /data/.opencode_update_policy
 
 # ==============================================================================
 # Process user-defined environment variables
-# Reads env_vars from add-on config and writes a sourceable file at /data/.env_vars
+# Reads env_vars from app config and writes a sourceable file at /data/.env_vars
 # ==============================================================================
 
 ENV_VARS_FILE="/data/.env_vars"
@@ -65,7 +65,7 @@ rm -f "${ENV_VARS_FILE}"
 OPTIONS_FILE="/data/options.json"
 ENV_VARS_COUNT=$(jq -r '.env_vars // [] | length' "${OPTIONS_FILE}")
 
-# Reserved names that would break the add-on if overridden
+# Reserved names that would break the app if overridden
 ENV_VARS_RESERVED='"HOME","PATH","SUPERVISOR_TOKEN","XDG_DATA_HOME","XDG_CONFIG_HOME","NPM_CONFIG_PREFIX","npm_config_prefix","NODE_OPTIONS","OPENCODE_DISABLE_AUTOUPDATE","OPENCODE_UPDATE_POLICY","SHELL","USER","PWD"'
 
 if [ "${ENV_VARS_COUNT}" -gt 0 ]; then
@@ -92,7 +92,7 @@ if [ "${ENV_VARS_COUNT}" -gt 0 ]; then
                 ;;
             reserved)
                 bashio::log.warning "Skipping reserved environment variable: '${VAR_NAME}'"
-                bashio::log.warning "System variables cannot be overridden to prevent breaking the add-on."
+                bashio::log.warning "System variables cannot be overridden to prevent breaking the app."
                 ;;
         esac
     done < <(jq -r "
@@ -193,11 +193,11 @@ if bashio::var.true "${ADDON_ACCESS_ENABLED}"; then
     printf 'export OPENCODE_ADDON_ACCESS_ENABLED=true\n' >> "${ENV_VARS_FILE}"
     chmod 600 "${ENV_VARS_FILE}"
     bashio::log.warning "Add-on folder access is enabled. OpenCode can work with /addons and /addon_configs."
-    bashio::log.warning "These folders may contain sensitive add-on configuration and should be edited carefully."
+    bashio::log.warning "These folders may contain sensitive app configuration and should be edited carefully."
 else
     printf 'export OPENCODE_ADDON_ACCESS_ENABLED=false\n' >> "${ENV_VARS_FILE}"
     chmod 600 "${ENV_VARS_FILE}"
-    bashio::log.info "Add-on folder access guidance disabled. Mounted add-on folders are not advertised in the terminal."
+    bashio::log.info "Add-on folder access guidance disabled. Mounted app folders are not advertised in the terminal."
 fi
 
 # ==============================================================================
@@ -281,7 +281,7 @@ fi
 
 if [ -z "${ACCESS_TOKEN}" ]; then
     bashio::log.warning "No access token configured — ESPHome tools will not work"
-    bashio::log.warning "Set a Long-Lived Access Token in the add-on Configuration tab"
+    bashio::log.warning "Set a Long-Lived Access Token in the app Configuration tab"
 fi
 
 # ==============================================================================
@@ -290,7 +290,7 @@ fi
 
 warn_baseline_mode() {
     bashio::log.warning "OpenCode x64 baseline mode may be used because AVX2 is not visible to the container."
-    bashio::log.warning "If this add-on runs in a VM on an AVX2-capable host, enable host CPU passthrough; generic QEMU/KVM CPU models can hide AVX2."
+    bashio::log.warning "If this app runs in a VM on an AVX2-capable host, enable host CPU passthrough; generic QEMU/KVM CPU models can hide AVX2."
     bashio::log.warning "Known upstream baseline OOM issue: https://github.com/anomalyco/opencode/issues/20988"
 }
 
@@ -673,7 +673,7 @@ bashio::log.info "OpenCode configuration generated successfully"
 # ==============================================================================
 # Inject custom OpenCode config.json (optional, for advanced users)
 # This allows power users to provide custom OpenCode configuration as a JSON
-# string via the add-on config UI. It is written to config.json which OpenCode
+# string via the app config UI. It is written to config.json which OpenCode
 # merges with opencode.json (our MCP/LSP config) at startup.
 # See https://opencode.ai/docs/config for the full schema.
 # ==============================================================================
@@ -692,7 +692,7 @@ if [ -f "${OPTIONS_FILE}" ]; then
             rm -f "${CONFIG_TARGET}"
         else
             printf '%s' "${OPENCODE_CONFIG_JSON}" > "${CONFIG_TARGET}"
-            bashio::log.info "Custom OpenCode config.json written from add-on configuration"
+            bashio::log.info "Custom OpenCode config.json written from app configuration"
         fi
     else
         # No custom config provided - remove any stale config.json from a previous run

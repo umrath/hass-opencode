@@ -1,6 +1,6 @@
 # CI quality gates
 
-Portable, dependency-light quality checks for the hass-opencode add-on. They run
+Portable, dependency-light quality checks for the hass-opencode app. They run
 **anywhere** — a developer laptop, the build host, or any future CI — with no
 GitHub Actions dependency. The build host runs them automatically (see
 [`buildhost/`](buildhost/)).

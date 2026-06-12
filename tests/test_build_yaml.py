@@ -1,7 +1,7 @@
 """Tests for the build.yaml files (build_from base images + pinned build args).
 
 Unlike the Codeberg variant (which inlines build args in the Dockerfile), this
-repo keeps a build.yaml per add-on.
+repo keeps a build.yaml per app.
 """
 
 import unittest

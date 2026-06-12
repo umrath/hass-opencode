@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Advisory: hadolint lint on the add-on Dockerfile. Uses a local hadolint
+# Advisory: hadolint lint on the app Dockerfile. Uses a local hadolint
 # binary if present, otherwise the hadolint/hadolint Docker image, otherwise
 # skips. Never fails the build.
 set -u
@@ -8,7 +8,7 @@ cd "$CI_REPO_ROOT"
 
 section "hadolint (advisory)"
 
-# DL3008/DL3013/DL3018/DL4006: pinning nags that don't fit a HA add-on build.
+# DL3008/DL3013/DL3018/DL4006: pinning nags that don't fit a HA app build.
 IGNORES="--ignore DL3008 --ignore DL3013 --ignore DL3018 --ignore DL4006"
 
 dockerfile="ha_opencode/Dockerfile"

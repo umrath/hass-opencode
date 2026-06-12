@@ -123,12 +123,12 @@ Simply run `/connect` and select **OpenCode Zen** to get started for free.
    Add: `https://github.com/magnusoverli/opencode`
    </details>
 
-2. **Install the add-on:**
-   - Find **"OpenCode"** in the add-on store
+2. **Install the app:**
+   - Find **"OpenCode"** in the app store
    - Click **Install**
 
 3. **Start using it:**
-   - Start the add-on
+   - Start the app
    - Click **Open Web UI** (or use the sidebar)
    - Run `opencode` and use `/connect` to configure your AI provider
 
@@ -136,9 +136,9 @@ Simply run `/connect` and select **OpenCode Zen** to get started for free.
 
 ## 🛡️ Safety & Validation
 
-> **This add-on has read/write access to your Home Assistant configuration directory.**
+> **This app has read/write access to your Home Assistant configuration directory.**
 
-It also mounts Home Assistant add-on development folders (`/addons` and `/addon_configs`) so OpenCode can help with custom add-ons. Treat `/addon_configs` as sensitive because it may contain configuration data for other add-ons.
+It also mounts Home Assistant app development folders (`/addons` and `/addon_configs`) so OpenCode can help with custom apps. Treat `/addon_configs` as sensitive because it may contain configuration data for other apps.
 
 OpenCode includes a multi-layered validation pipeline designed to prevent AI-written configuration from causing your Home Assistant to fail to start:
 

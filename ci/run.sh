@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CI orchestrator for the hass-opencode add-on.
+# CI orchestrator for the hass-opencode app.
 #
 # Runs the quality-gate checks under ci/checks/ in order and prints a summary.
 # Exit status:

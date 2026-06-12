@@ -1,4 +1,4 @@
-"""Tests for the add-on translation files.
+"""Tests for the app translation files.
 
 The key contract is parity: every user option in config.yaml must have a
 matching entry under `configuration:` in each shipped translation, with a name

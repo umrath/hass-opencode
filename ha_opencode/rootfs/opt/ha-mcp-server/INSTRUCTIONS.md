@@ -22,7 +22,7 @@ You have access to the Home Assistant MCP server which provides deep integration
 
 ## Add-on Development Folder Access
 
-When enabled by the user, `/addons` and `/addon_configs` may be available for Home Assistant add-on development. Only inspect or modify these folders when the user explicitly asks. Treat `/addon_configs` as sensitive because it can contain configuration data for other add-ons.
+When enabled by the user, `/addons` and `/addon_configs` may be available for Home Assistant app development. Only inspect or modify these folders when the user explicitly asks. Treat `/addon_configs` as sensitive because it can contain configuration data for other apps.
 
 ## Update Management
 
@@ -123,7 +123,7 @@ Use the documentation tools proactively:
 
 The `write_config_safe` tool performs these checks automatically:
 - **Content protection** — blocks writes that would remove list entries, drop top-level keys, or significantly shrink the file
-- **Deprecation scanning** — 20+ patterns, auto-updated from GitHub between add-on releases
+- **Deprecation scanning** — 20+ patterns, auto-updated from GitHub between app releases
 - **Jinja2 template validation** — sends every template through HA's own engine
 - **Structural validation** — checks for missing required keys in automations, scripts, etc.
 - **YAML lint checks** — tabs, comma-separated entity lists, etc.
@@ -138,8 +138,8 @@ The `write_config_safe` tool performs these checks automatically:
 ### How Validation Data Stays Current
 
 The validation system uses multiple data sources that update automatically:
-1. **Bundled patterns** — Ship with the add-on, always available offline
-2. **GitHub remote patterns** — Fetched hourly from the repo, allowing pattern updates between add-on releases
+1. **Bundled patterns** — Ship with the app, always available offline
+2. **GitHub remote patterns** — Fetched hourly from the repo, allowing pattern updates between app releases
 3. **HA Core config check** — Always reflects your exact HA version's validation rules
 4. **HA Repairs API** — Live deprecation warnings specific to your installation
 5. **HA Alerts feed** — Global integration issues from alerts.home-assistant.io

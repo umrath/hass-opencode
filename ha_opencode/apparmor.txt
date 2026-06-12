@@ -1,9 +1,9 @@
-# AppArmor profile for the OpenCode Home Assistant add-on.
+# AppArmor profile for the OpenCode Home Assistant app.
 #
 # Replaces Supervisor's auto-generated default with an explicit, reviewed
 # profile. It is intentionally NOT tighter than the working default: the goal
 # is a documented, auditable allow-list, not a hardening experiment that could
-# silently break the add-on. The container runs a broad stack — s6-overlay v3,
+# silently break the app. The container runs a broad stack — s6-overlay v3,
 # the OpenCode CLI (npm-installed, extracts libopentui.so to /tmp at runtime),
 # the Node MCP + LSP servers, the PPQ and mobile (oc-proxy) Python proxies,
 # zigporter (own venv), tmux, ttyd, and optional headless Chromium — so most
@@ -81,7 +81,7 @@ profile ha_opencode flags=(attach_disconnected,mediate_deleted) {
   /data/** ixmr,
 
   # ── Mapped Home Assistant directories ─────────────────────────────────────
-  # The working directory and the add-on dev mounts declared in config.yaml.
+  # The working directory and the app dev mounts declared in config.yaml.
   /homeassistant/ r,
   /homeassistant/** rwk,
   /addons/ r,

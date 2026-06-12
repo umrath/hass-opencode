@@ -1,4 +1,4 @@
-"""Structural and invariant tests for the add-on config.yaml files.
+"""Structural and invariant tests for the app config.yaml files.
 
 Oriented on ../hass-opencode's test suite, but every assertion reflects *this*
 repo's own contracts (ingress_port 8099, slug ha_opencode, s6 via init:false,
@@ -49,7 +49,7 @@ def list_choices(schema_str):
 
 
 class _CommonConfigInvariants:
-    """Mixin: invariants every add-on config.yaml must satisfy.
+    """Mixin: invariants every app config.yaml must satisfy.
 
     Subclasses set cls.PATH and cls.EXPECTED_SLUG.
     """
@@ -91,7 +91,7 @@ class _CommonConfigInvariants:
             self.assertIn(a, ("amd64", "aarch64"), f"unsupported arch: {a}")
 
     def test_init_false_for_s6(self):
-        # The HA Debian base image ships s6-overlay as PID 1, so the add-on
+        # The HA Debian base image ships s6-overlay as PID 1, so the app
         # must NOT request its own init.
         self.assertFalse(self.cfg["init"], "init must be false (s6-overlay base image)")
 

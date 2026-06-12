@@ -14,7 +14,7 @@ configuration:
 
   opencode_update_policy:
     name: "OpenCode Update Policy"
-    description: "Controls how OpenCode itself is updated. 'latest' installs and updates OpenCode in persistent add-on data so it can follow upstream releases independently of add-on releases. 'bundled' uses only the OpenCode version included in the add-on image and disables OpenCode self-update."
+    description: "Controls how OpenCode itself is updated. 'latest' installs and updates OpenCode in persistent app data so it can follow upstream releases independently of app releases. 'bundled' uses only the OpenCode version included in the app image and disables OpenCode self-update."
   
   terminal_theme:
     name: "Terminal Theme"
@@ -38,15 +38,15 @@ configuration:
 
   ppq_private_enabled:
     name: "Enable PPQ Private TEE Models"
-    description: "Start an internal PPQ private-mode encryption proxy and add it as an OpenCode provider. The proxy binds only to 127.0.0.1 inside the add-on container and is not exposed on your network. Requires a PPQ API key."
+    description: "Start an internal PPQ private-mode encryption proxy and add it as an OpenCode provider. The proxy binds only to 127.0.0.1 inside the app container and is not exposed on your network. Requires a PPQ API key."
 
   ppq_api_key:
     name: "PPQ API Key"
-    description: "API key for PPQ private-mode models. Stored as a masked add-on option and exported only to the internal PPQ proxy service. Leave empty unless PPQ private mode is enabled."
+    description: "API key for PPQ private-mode models. Stored as a masked app option and exported only to the internal PPQ proxy service. Leave empty unless PPQ private mode is enabled."
 
   addon_access_enabled:
     name: "Enable Add-on Folder Guidance"
-    description: "Show guidance for working with Home Assistant add-on folders. Security note: /addons and /addon_configs are mounted into this add-on for development access, and /addon_configs may contain sensitive add-on data. Changing this option requires restarting the add-on to update terminal guidance, but it is not a hard filesystem permission boundary."
+    description: "Show guidance for working with Home Assistant app folders. Security note: /addons and /addon_configs are mounted into this app for development access, and /addon_configs may contain sensitive app data. Changing this option requires restarting the app to update terminal guidance, but it is not a hard filesystem permission boundary."
 
   enable_server:
     name: "Enable OpenCode LAN Server"
@@ -66,12 +66,12 @@ configuration:
 
   env_vars:
     name: "Environment Variables"
-    description: "Define custom environment variables that are available to OpenCode and the terminal shell. Useful for provider credentials and configuration that must be set as environment variables (e.g. AZURE_RESOURCE_NAME, OPENAI_API_KEY). Each entry needs a variable name and value. Changes take effect after restarting the add-on."
+    description: "Define custom environment variables that are available to OpenCode and the terminal shell. Useful for provider credentials and configuration that must be set as environment variables (e.g. AZURE_RESOURCE_NAME, OPENAI_API_KEY). Each entry needs a variable name and value. Changes take effect after restarting the app."
 
   serial_devices:
     name: "Serial Devices"
-    description: "Optional host UART/serial devices to map into the add-on for direct serial access. Use this for local USB flashing or adapter inspection workflows. Changes take effect after restarting the add-on."
+    description: "Optional host UART/serial devices to map into the app for direct serial access. Use this for local USB flashing or adapter inspection workflows. Changes take effect after restarting the app."
 
   opencode_config:
     name: "Custom OpenCode Configuration (JSON)"
-    description: "Advanced: Paste a JSON object to customize OpenCode's own configuration (providers, keybindings, etc.). This is merged with the add-on's built-in config. Leave empty for defaults. See https://opencode.ai/docs/config for the full schema."
+    description: "Advanced: Paste a JSON object to customize OpenCode's own configuration (providers, keybindings, etc.). This is merged with the app's built-in config. Leave empty for defaults. See https://opencode.ai/docs/config for the full schema."

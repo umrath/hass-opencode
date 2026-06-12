@@ -92,7 +92,7 @@ const ESPHOME_TOKEN_ERROR = "ESPHome tools require a Long-Lived Access Token.\n\
   "2. Scroll to Long-Lived Access Tokens and create one\n" +
   "3. Go to Settings â†’ Add-ons â†’ OpenCode â†’ Configuration\n" +
   "4. Paste the token into the 'access_token' field\n" +
-  "5. Restart the OpenCode add-on (with ESPHome already running)";
+  "5. Restart the OpenCode app (with ESPHome already running)";
 
 // Screenshot feature (visual verification of dashboards and UI)
 const SCREENSHOT_ENABLED = process.env.SCREENSHOT_ENABLED === "true";
@@ -103,7 +103,7 @@ const SCREENSHOT_DISABLED_ERROR = "Screenshot tool is disabled.\n\n" +
   "1. Go to Settings â†’ Add-ons â†’ OpenCode â†’ Configuration\n" +
   "2. Enable 'Screenshot tool'\n" +
   "3. Set a Long-Lived Access Token (Profile â†’ Long-Lived Access Tokens)\n" +
-  "4. Restart the OpenCode add-on";
+  "4. Restart the OpenCode app";
 
 const SCREENSHOT_TOKEN_ERROR = "Screenshot tool requires a Long-Lived Access Token.\n\n" +
   "To configure:\n" +
@@ -111,7 +111,7 @@ const SCREENSHOT_TOKEN_ERROR = "Screenshot tool requires a Long-Lived Access Tok
   "2. Scroll to Long-Lived Access Tokens and create one\n" +
   "3. Go to Settings â†’ Add-ons â†’ OpenCode â†’ Configuration\n" +
   "4. Paste the token into the 'access_token' field\n" +
-  "5. Restart the OpenCode add-on";
+  "5. Restart the OpenCode app";
 
 // Home Assistant documentation base URLs
 const HA_DOCS_BASE = "https://www.home-assistant.io";
@@ -201,7 +201,7 @@ async function callHA(endpoint, method = "GET", body = null, timeoutMs = API_TIM
 
 /**
  * Call Home Assistant Supervisor API directly
- * Used for add-on management, updates, jobs, and system operations
+ * Used for app management, updates, jobs, and system operations
  */
 async function callSupervisor(endpoint, method = "GET", body = null, timeoutMs = API_TIMEOUT_MS) {
   sendLog("debug", "supervisor-api", { action: "request", endpoint, method });
@@ -365,7 +365,7 @@ async function discoverHACoreUrl() {
  * @param {boolean} [options.fullPage=false] - Capture full scrollable page
  * @returns {Promise<string>} Base64-encoded PNG screenshot
  */
-// Chromium launch dominates screenshot latency (1-4 s on add-on hardware) â€”
+// Chromium launch dominates screenshot latency (1-4 s on app hardware) â€”
 // keep one browser alive across calls and close it after an idle period
 let sharedBrowser = null;
 let browserIdleTimer = null;
@@ -555,7 +555,7 @@ async function takeScreenshot(haCoreUrl, urlPath, options = {}) {
 // ============================================================================
 
 /**
- * Discover ESPHome add-on and return its URL via the Supervisor ingress proxy.
+ * Discover ESPHome app and return its URL via the Supervisor ingress proxy.
  *
  * ESPHome (since ~2026.2.x) no longer exposes the dashboard on a TCP port.
  * The dashboard binds to a Unix socket, fronted by nginx with IP-based access
@@ -1379,7 +1379,7 @@ function loadLocalDeprecationPatterns() {
 
 /**
  * GitHub URL for the latest deprecation patterns.
- * This allows pattern updates between add-on releases.
+ * This allows pattern updates between app releases.
  */
 const GITHUB_PATTERNS_URL = "https://raw.githubusercontent.com/magnusoverli/opencode/main/ha_opencode/rootfs/opt/shared/deprecation-patterns.json";
 
@@ -2468,7 +2468,7 @@ const TOOLS = [
   {
     name: "esphome_list_devices",
     title: "List ESPHome Devices",
-    description: "List all configured ESPHome devices with current and deployed firmware versions. Requires ESPHome add-on to be installed and running.",
+    description: "List all configured ESPHome devices with current and deployed firmware versions. Requires ESPHome app to be installed and running.",
     inputSchema: {
       type: "object",
       properties: {},
@@ -4236,7 +4236,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error(ESPHOME_TOKEN_ERROR);
         }
         
-        // Discover ESPHome add-on
+        // Discover ESPHome app
         const esphome = await getESPHomeConnection();
         if (!esphome.ok) {
           const d = esphome.diagnostics;
@@ -4251,7 +4251,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         
         if (esphome.state !== "started") {
-          throw new Error(`ESPHome add-on is not running (current state: ${esphome.state}). Please start the ESPHome add-on first.`);
+          throw new Error(`ESPHome app is not running (current state: ${esphome.state}). Please start the ESPHome app first.`);
         }
         
         try {
@@ -4322,7 +4322,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error(ESPHOME_TOKEN_ERROR);
         }
         
-        // Discover ESPHome add-on
+        // Discover ESPHome app
         const esphome = await getESPHomeConnection();
         if (!esphome.ok) {
           const d = esphome.diagnostics;
@@ -4332,7 +4332,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         
         if (esphome.state !== "started") {
-          throw new Error(`ESPHome add-on is not running (current state: ${esphome.state}). Please start the ESPHome add-on first.`);
+          throw new Error(`ESPHome app is not running (current state: ${esphome.state}). Please start the ESPHome app first.`);
         }
         
         // Ensure device has .yaml extension
@@ -4394,7 +4394,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error(ESPHOME_TOKEN_ERROR);
         }
         
-        // Discover ESPHome add-on
+        // Discover ESPHome app
         const esphome = await getESPHomeConnection();
         if (!esphome.ok) {
           const d = esphome.diagnostics;
@@ -4404,7 +4404,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         
         if (esphome.state !== "started") {
-          throw new Error(`ESPHome add-on is not running (current state: ${esphome.state}). Please start the ESPHome add-on first.`);
+          throw new Error(`ESPHome app is not running (current state: ${esphome.state}). Please start the ESPHome app first.`);
         }
         
         // Ensure device has .yaml extension
@@ -4578,7 +4578,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Auth commands are not needed - hab is pre-authenticated via Supervisor token.");
         }
         if (lowerCmd.startsWith("update") && !lowerCmd.startsWith("update ")) {
-          throw new Error("Self-update of hab is not supported inside the container. hab is updated with the add-on.");
+          throw new Error("Self-update of hab is not supported inside the container. hab is updated with the app.");
         }
         
         sendLog("info", "hab", { action: "run_command", command });

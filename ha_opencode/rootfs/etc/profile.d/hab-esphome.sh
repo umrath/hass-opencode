@@ -9,7 +9,7 @@ hab() {
         echo "  2. Scroll to Long-Lived Access Tokens and create one" >&2
         echo "  3. Go to Settings -> Add-ons -> OpenCode -> Configuration" >&2
         echo "  4. Paste the token into the 'access_token' field" >&2
-        echo "  5. Restart the OpenCode add-on (with ESPHome already running)" >&2
+        echo "  5. Restart the OpenCode app (with ESPHome already running)" >&2
         return 1
     fi
     command hab "$@"
