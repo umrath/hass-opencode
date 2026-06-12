@@ -1,4 +1,12 @@
 # Changelog
+All notable changes to this project will be documented in this file.
+
+## Unreleased
+
+## 2.2.9
+
+- **Fix watchdog restart loop** — replaced `wait -n` (spurious signal returns) with `kill -0` health check loop.
+- **Proxy startup hardening** — readiness check polling, startup logging, lifecycle tests.
 
 ## 2.2.9
 
@@ -6,9 +14,7 @@
 
 ## 2.2.8
 
-- _(auto-activated — no Unreleased section present)_
-
-All notable changes to this project will be documented in this file.
+- **Fix proxy startup** — readiness check (poll ingress port), lifecycle tests, startup logging.
 
 ## 2.2.8
 
