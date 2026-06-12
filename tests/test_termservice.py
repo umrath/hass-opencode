@@ -39,6 +39,12 @@ class TestTermService(unittest.TestCase):
         self.assertLess(proxy_idx, ttyd_idx,
             "proxy must start before ttyd backends (proxy binds ingress port immediately)")
 
+    def test_only_one_proxy_instance(self):
+        """Port 8099 can only be bound once. A duplicate proxy call crashes."""
+        count = self.run_text.count("proxy.py")
+        self.assertEqual(count, 1,
+            f"exactly one proxy.py call expected, found {count}")
+
     def test_supervises_children_with_kill_check(self):
         self.assertIn("kill -0", self.run_text)
         self.assertIn("died", self.run_text)
