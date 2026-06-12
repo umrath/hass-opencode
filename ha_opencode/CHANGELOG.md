@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **s6-only supervision** — removed Docker HEALTHCHECK and HA Supervisor watchdog. s6 is the sole process supervisor.
+- **Fix platform binary** — runtime npm install uses --ignore-scripts + manual binary install (same as Dockerfile).
+
 ## 2.2.17
 
 - **Restore init-opencode dependency** — desktop and mobile ttyd now wait for config generation before starting, so opencode finds a valid opencode.json.
