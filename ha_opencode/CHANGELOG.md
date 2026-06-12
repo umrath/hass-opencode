@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Remove `watchdog: false`** — may block older HA Supervisor versions.
+
 ## 2.2.23
 
 - **All defect fixes from 2.2.19 audit** — W1 (non-proxy terminal), A1 (dead code removed), A2 (base image pinned + guard), R1 (arm64 worker with retry), R2 (CHANGELOG duplicate check).

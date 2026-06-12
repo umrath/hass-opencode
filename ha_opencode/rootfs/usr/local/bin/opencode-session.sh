@@ -58,14 +58,11 @@ fi
 # Change to Home Assistant config directory
 cd /homeassistant
 
-# Set up PATH - prefer the persistent OpenCode install when enabled.
-export NPM_CONFIG_PREFIX="${NPM_CONFIG_PREFIX:-/data/.npm-global}"
-if [ "${OPENCODE_UPDATE_POLICY}" = "latest" ]; then
-    export PATH="${NPM_CONFIG_PREFIX}/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
-else
-    export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
-    export OPENCODE_DISABLE_AUTOUPDATE=true
-fi
+# Use bundled opencode binary from the Docker image. The runtime npm update
+# was removed because the postinstall has platform detection bugs with Node 22.
+# The bundled binary at /usr/local/bin/opencode is properly pre-installed.
+export PATH="/usr/local/bin:/usr/bin:/bin:${PATH}"
+export OPENCODE_DISABLE_AUTOUPDATE=true
 
 # Configure git if not already configured
 if [ ! -f "${HOME}/.gitconfig" ]; then
