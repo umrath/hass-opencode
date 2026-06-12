@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Fix arm64 build** — detached with setsid to survive CI restarts. Arm64 now reliably merges into multi-arch manifest.
+
 ## 2.2.19
 
 - **Use bundled opencode** — skip runtime npm update to avoid postinstall binary detection bugs.
