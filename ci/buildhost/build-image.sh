@@ -37,7 +37,7 @@ echo "[build-image] building amd64 (native)…"
 # Verify the base image for the exact pinned digest exists and covers both arches.
 # The app Dockerfile pins by digest; if it's missing the build fails late.
 # Extract the pinned digest from the Dockerfile and verify both platforms.
-BASE_DIGEST=$(grep -m1 -oE 'ghcr\.io/umrath/ha_opencode-base@sha256:[a-f0-9]{64}' "$REPO_ROOT/ha_opencode/Dockerfile" || echo "")
+BASE_DIGEST=$(grep -m1 -oE 'ghcr\.io/umrath/ha_opencode-base[^[:space:]]*sha256:[a-f0-9]{64}' "$REPO_ROOT/ha_opencode/Dockerfile" || echo "")
 if [ -z "$BASE_DIGEST" ]; then
     echo "[build-image] FATAL: no pinned base image digest found in Dockerfile"
     exit 1
