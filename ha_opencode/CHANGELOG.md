@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.9
+
+- _(auto-activated)_
+
 ## 2.2.8
 
 - _(auto-activated — no Unreleased section present)_
