@@ -77,6 +77,16 @@ import { validateYamlStructure, resolveConfigPath } from "./lib/validation.js";
 import { extractContentFromHtml, extractConfigurationSection, extractYamlExamples } from "./lib/html-parser.js";
 import { createTextContent, createImageContent, createResourceLink } from "./lib/helpers.js";
 
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("unhandledRejection:", reason);
+});
+process.on("uncaughtException", (error) => {
+  console.error("uncaughtException:", error);
+  // Prevent process exit — keep the server alive.
+  // This is unsafe for stateful errors; the server may need restart.
+  // In practice HA API fetch failures are the main cause and are stateless.
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -5252,14 +5262,6 @@ Provide complete automation YAML and any required helper entities.`,
 // ============================================================================
 // START SERVER
 // ============================================================================
-
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("unhandledRejection:", reason);
-});
-
-process.on("uncaughtException", (error) => {
-  console.error("uncaughtException:", error);
-});
 
 async function main() {
   const transport = new StdioServerTransport();
