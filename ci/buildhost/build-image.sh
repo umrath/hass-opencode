@@ -68,6 +68,14 @@ ARM_STATE="${STATE_DIR}/arm64-pending-${VERSION}"
 
 echo "[build-image] starting arm64 build (QEMU, may take 15-20 min)…"
 
+# Use a dedicated builder for arm64 background builds to prevent BuildKit
+# session cancellation when the main CI builder is reused for new releases.
+ARM_BUILDER="${CI_BUILDX_BUILDER:-ci-multiarch}-arm64"
+if ! docker buildx inspect "$ARM_BUILDER" >/dev/null 2>&1; then
+    docker buildx create --name "$ARM_BUILDER" --use 2>/dev/null || true
+    docker buildx use ci-multiarch 2>/dev/null || true  # restore default
+fi
+
 # Write a state file so the CI runner knows arm64 is still in progress.
 # Removed on completion (success or failure).
 date -u +%s > "$ARM_STATE"
@@ -77,7 +85,7 @@ date -u +%s > "$ARM_STATE"
   echo '[build-image-arm64] building…'
 
   if docker buildx build \
-    --builder "$BUILDER" \
+    --builder "$ARM_BUILDER" \
     --platform linux/arm64 \
     --file "$REPO_ROOT/ha_opencode/Dockerfile" \
     --build-arg "BUILD_VERSION=$VERSION" \
