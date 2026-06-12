@@ -161,6 +161,26 @@ if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
     python3 /usr/share/oc-proxy/proxy.py &
     PROXY_PID=$!
 
+    # Wait for proxy to become ready — poll the ingress port.
+    # If it fails to start within 15 seconds, tear down and exit.
+    READY=0
+    for i in $(seq 1 30); do
+        if curl -sf -o /dev/null http://127.0.0.1:${INGRESS_PORT}/ 2>/dev/null; then
+            READY=1; break
+        fi
+        if ! kill -0 "$PROXY_PID" 2>/dev/null; then
+            bashio::log.error "Proxy process died during startup"
+            break
+        fi
+        sleep 0.5
+    done
+    if [ "$READY" != "1" ]; then
+        bashio::log.error "Proxy failed to start within 15s — exiting"
+        kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait
+        exit 1
+    fi
+    bashio::log.info "Proxy ready on port ${INGRESS_PORT}"
+
     # Supervise all three. s6 supervises only this run script, so if one of the
     # backgrounded ttyd backends (or the proxy) dies we tear the rest down and
     # exit non-zero — s6 then restarts the whole terminal service cleanly.

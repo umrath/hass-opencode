@@ -172,8 +172,10 @@ async def handle(client_r: asyncio.StreamReader, client_w: asyncio.StreamWriter)
 
 
 async def main() -> None:
+    print(f"[proxy] listening on 0.0.0.0:{LISTEN_PORT} -> desktop:{DESKTOP_PORT} mobile:{MOBILE_PORT}", flush=True)
     server = await asyncio.start_server(handle, "0.0.0.0", LISTEN_PORT)
     async with server:
+        print(f"[proxy] started, accepting connections", flush=True)
         await server.serve_forever()
 
 
