@@ -60,7 +60,6 @@ All notable changes to this project will be documented in this file.
 - **Mobile device support** — added an async Python TCP proxy with iPad touch-probe detection (via `navigator.maxTouchPoints`), routing mobile clients to a tmux-free terminal with larger font while desktop clients keep tmux session persistence. Toggle via `mobile_proxy_enabled`.
 
 ## 2.1.0
-## 2.1.0
 
 - **PPQ private TEE models (beta)** — added an opt-in internal PPQ private-mode proxy, pinned at image build time, with a masked PPQ API key option and an OpenCode custom provider for PPQ private models. This feature ships in the stable add-on, but should still be considered beta while provider behavior and proxy integration are validated.
 - **Faster startup and lower resource use** — OpenCode service startup no longer waits on ESPHome/Zigbee2MQTT discovery, AGENTS.md guidance only refreshes after add-on updates, environment variables are processed in a single pass, the baseline x64 OpenCode binary is preinstalled for non-AVX2 systems, and `puppeteer-core` loads only when screenshots are used.
