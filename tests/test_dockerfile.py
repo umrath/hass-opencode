@@ -19,11 +19,32 @@ class TestDockerfile(unittest.TestCase):
         cls.text = DOCKERFILE.read_text() if DOCKERFILE.exists() else ""
         cls.base_text = BASE_DOCKERFILE.read_text() if BASE_DOCKERFILE.exists() else ""
 
+    # ── Base Dockerfile ──────────────────────────────────────────────────────
+
+    def test_base_exists_and_substantial(self):
+        self.assertTrue(BASE_DOCKERFILE.exists())
+        self.assertGreater(len(self.base_text), 800)
+        self.assertRegex(self.base_text, r"(?m)^FROM\s+ghcr\.io/home-assistant/base-debian:trixie")
+
+    def test_base_has_required_args(self):
+        for arg in ("BUILD_ARCH", "TARGETARCH", "TTYD_VERSION", "OPENCODE_VERSION"):
+            self.assertIn(f"ARG {arg}", self.base_text, f"Dockerfile.base missing ARG {arg}")
+
+    def test_base_installs_system_packages(self):
+        for pkg in ("git", "jq", "nodejs", "procps", "python3", "python3-venv", "tmux"):
+            self.assertIn(pkg, self.base_text, f"Dockerfile.base should install {pkg}")
+
+    def test_base_installs_global_npm(self):
+        self.assertIn("opencode-ai", self.base_text)
+        self.assertIn("prettier", self.base_text)
+        self.assertIn("ppq-private-mode", self.base_text)
+        self.assertIn("tsx", self.base_text)
+
+    # ── App Dockerfile ──────────────────────────────────────────────────────
+
     def test_exists_and_substantial(self):
-        self.assertTrue(DOCKERFILE.exists(), "ha_opencode/Dockerfile must exist")
+        self.assertTrue(DOCKERFILE.exists())
         self.assertGreater(len(self.text), 500)
-        self.assertTrue(BASE_DOCKERFILE.exists(), "ha_opencode/Dockerfile.base must exist")
-        self.assertGreater(len(self.base_text), 500)
 
     def test_has_hab_builder_stage(self):
         self.assertRegex(self.text, r"(?m)^FROM\s+.*\sAS\s+hab-builder",
