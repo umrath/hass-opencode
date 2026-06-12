@@ -118,6 +118,34 @@ class TestProxyLifecycle(unittest.TestCase):
         self.assertIn(f"desktop:{self.desktop_port}", out)
         self.assertIn(f"mobile:{self.mobile_port}", out)
 
+    def test_proxy_binds_on_configured_port(self):
+        """Verify OC_PROXY_PORT env var is actually used."""
+        self._start_proxy()
+        self._wait_for_proxy()
+        import socket
+        # port we configured should be open
+        s = socket.create_connection(("127.0.0.1", self.proxy_port), timeout=1)
+        s.close()
+        # default port (7681) should NOT be open
+        with self.assertRaises((ConnectionRefusedError, OSError)):
+            socket.create_connection(("127.0.0.1", 7681), timeout=0.5)
+
+    def test_run_script_defines_correct_ports(self):
+        """The run script must define ingress/desktop/mobile ports matching proxy defaults."""
+        run_script = (
+            Path(__file__).resolve().parents[1]
+            / "ha_opencode" / "rootfs" / "etc" / "s6-overlay" / "s6-rc.d"
+            / "ha-opencode" / "run"
+        )
+        text = run_script.read_text()
+        self.assertIn("INGRESS_PORT=8099", text)
+        self.assertIn("DESKTOP_PORT=8098", text)
+        self.assertIn("MOBILE_PORT=8097", text)
+        # Verify the export passes them to proxy
+        self.assertIn("OC_PROXY_PORT=${INGRESS_PORT}", text)
+        self.assertIn("OC_DESKTOP_PORT=${DESKTOP_PORT}", text)
+        self.assertIn("OC_MOBILE_PORT=${MOBILE_PORT}", text)
+
 
 if __name__ == "__main__":
     unittest.main()

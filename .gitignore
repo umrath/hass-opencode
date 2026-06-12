@@ -23,3 +23,5 @@ npm-debug.log*
 # Python
 __pycache__/
 *.py[cod]
+ha_opencode/rootfs/opt/ha-mcp-server/node_modules/
+ha_opencode/rootfs/opt/ha-lsp-server/node_modules/
