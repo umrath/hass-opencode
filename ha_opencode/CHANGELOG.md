@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Restore init-opencode dependency** — desktop and mobile ttyd now wait for config generation before starting, so opencode finds a valid opencode.json.
+
 ## 2.2.16
 
 - **HEALTHCHECK always passes** — Docker health check no longer kills the container. HA Supervisor manages health independently.
