@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.15
 
 - **Proxy starts before init** — removed init-opencode dependency so port 8099 binds immediately on container start.
 
