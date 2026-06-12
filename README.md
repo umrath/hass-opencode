@@ -280,7 +280,7 @@ See the [contributors page](https://github.com/magnusoverli/opencode/graphs/cont
 
 ## 📜 License
 
-This is free and unencumbered software released into the public domain - see the [UNLICENSE](UNLICENSE) file for details.
+Licensed under the MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
@@ -298,7 +298,7 @@ This is free and unencumbered software released into the public domain - see the
 [docs]: ./ha_opencode/DOCS.md
 [changelog]: ./ha_opencode/CHANGELOG.md
 [issues]: https://github.com/magnusoverli/opencode/issues
-[license]: UNLICENSE
+[license]: LICENSE
 [github]: https://github.com/magnusoverli/opencode
 [repo-add]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fmagnusoverli%2Fopencode
 [repo-btn]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
