@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
 ## 2.2.9
 
 - **Fix watchdog restart loop** — replaced `wait -n` (spurious signal returns) with `kill -0` health check loop that logs which process died.
