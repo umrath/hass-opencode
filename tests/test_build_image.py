@@ -22,6 +22,10 @@ class TestBuildImageScript(unittest.TestCase):
     def test_arm64_is_background(self):
         self.assertIn("arm64 build detached", self.text)
 
+    def test_arm64_has_state_tracking(self):
+        self.assertIn("ARM_STATE", self.text)
+        self.assertIn("arm64-pending", self.text)
+
     def test_multi_arch_manifest_created(self):
         self.assertIn("imagetools create", self.text)
 
