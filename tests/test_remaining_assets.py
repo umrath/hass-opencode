@@ -83,5 +83,25 @@ class TestDiscoverServicesSyntax(unittest.TestCase):
             f"JS syntax error:\n{result.stderr.decode()}")
 
 
+class TestClipboardJs(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.path = ROOT / "ha_opencode" / "rootfs" / "opt" / "ttyd" / "clipboard.js"
+        cls.text = cls.path.read_text() if cls.path.exists() else ""
+
+    def test_exists(self):
+        self.assertTrue(self.path.exists())
+
+    def test_valid_js_syntax(self):
+        result = subprocess.run(["node", "-c", str(self.path)],
+                                capture_output=True)
+        self.assertEqual(result.returncode, 0,
+            f"JS syntax error:\n{result.stderr.decode()}")
+
+    def test_has_osc52_handler(self):
+        self.assertIn("OSC", self.text)
+        self.assertIn("clipboard", self.text.lower())
+
+
 if __name__ == "__main__":
     unittest.main()
