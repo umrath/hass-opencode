@@ -85,6 +85,8 @@ class TestDockerfile(unittest.TestCase):
     def test_has_hass_labels(self):
         for label in ("io.hass.name", "io.hass.type", "io.hass.version"):
             self.assertIn(label, self.text, f"missing label {label}")
+        self.assertIn('io.hass.type="app"', self.text,
+            "label must say 'app' not 'add-on'")
 
 
 if __name__ == "__main__":

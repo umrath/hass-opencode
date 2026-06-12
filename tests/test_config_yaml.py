@@ -159,6 +159,8 @@ class TestStableConfig(_CommonConfigInvariants, unittest.TestCase):
         self.assertFalse(self.cfg["host_network"])
         self.assertEqual(self.cfg.get("privileged", []), [])
         self.assertTrue(self.cfg["apparmor"], "apparmor must be enabled")
+        self.assertTrue(self.cfg.get("tmpfs", False),
+            "tmpfs must be enabled — /tmp is a RAM disk to prevent flash wear")
 
     def test_only_lan_server_port_is_declared(self):
         # The PPQ proxy binds 127.0.0.1 only and must never be a mapped port;

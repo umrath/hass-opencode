@@ -41,6 +41,7 @@ homeassistant_api: true
 host_network: false
 privileged: []
 apparmor: true
+tmpfs: true
 # Static Supervisor hardware mappings. Keep default-off; users can opt into
 # specific serial devices via the serial_devices option below.
 uart: false
