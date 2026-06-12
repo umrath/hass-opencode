@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- **Fix watchdog restart loop** — removed Docker HEALTHCHECK (conflicted with HA Supervisor watchdog). Start proxy before ttyd so Ingress port 8099 responds immediately at container start.
+
 ## 2.2.10
 
 ## 2.2.10
