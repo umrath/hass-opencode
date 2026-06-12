@@ -1,0 +1,12 @@
+[Unit]
+Description=Process pending arm64 build markers
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=5min
+Persistent=true
+RandomizedDelaySec=30
+Unit=hass-opencode-arm64.service
+
+[Install]
+WantedBy=timers.target

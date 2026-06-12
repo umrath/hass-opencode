@@ -90,7 +90,7 @@ self_update() {
   fi
 
   command -v systemctl >/dev/null 2>&1 || return 0
-  for u in hass-opencode-ci.service hass-opencode-ci.timer; do
+  for u in hass-opencode-ci.service hass-opencode-ci.timer hass-opencode-arm64.service hass-opencode-arm64.timer; do
     if [ -f "$src/$u" ] && ! cmp -s "$src/$u" "/etc/systemd/system/$u"; then
       install -m 0644 "$src/$u" "/etc/systemd/system/$u" && { changed=1; log "self-update: $u refreshed"; }
     fi

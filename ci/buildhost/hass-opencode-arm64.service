@@ -1,0 +1,14 @@
+[Unit]
+Description=hass-opencode arm64 build worker (single-flighted)
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/hass-opencode-ci
+Environment=HOME=/opt/ci/hass-opencode
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=true
+TimeoutStartSec=1800
+ExecStart=/opt/ci/hass-opencode/repo/ci/buildhost/build-arm64-worker.sh
