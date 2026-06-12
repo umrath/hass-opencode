@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.13
 
 - **Python terminal supervisor** — replaced fragile bash multi-process supervision (wait, kill -0, trap) with a clean Python supervisor. Single `exec python3` call, proper subprocess management.
 
