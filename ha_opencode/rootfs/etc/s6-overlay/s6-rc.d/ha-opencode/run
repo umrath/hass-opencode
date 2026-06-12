@@ -144,7 +144,6 @@ if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
     exec python3 /usr/share/oc-proxy/supervisor.py
 
 else
-else
     bashio::log.info "Starting ttyd on port ${INGRESS_PORT} (single instance)"
     exec ttyd \
         -W \
