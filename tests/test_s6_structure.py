@@ -126,6 +126,25 @@ class TestNewTerminalServices(unittest.TestCase):
         self.assertFalse(old_finish.exists(),
             "old ha-opencode/finish must be removed")
 
+    def test_proxy_has_no_init_dependency(self):
+        """Proxy must start immediately — no deps. HA Supervisor checks port 8099 at boot."""
+        deps = S6_ROOT / "ha-opencode-proxy" / "dependencies.d"
+        names = {d.name for d in deps.iterdir()} if deps.exists() else set()
+        self.assertNotIn("init-opencode", names,
+            "proxy must not depend on init-opencode (must bind before init runs)")
+
+    def test_desktop_depends_on_proxy_and_init(self):
+        deps = S6_ROOT / "ha-opencode-desktop" / "dependencies.d"
+        names = {d.name for d in deps.iterdir()} if deps.exists() else set()
+        self.assertIn("ha-opencode-proxy", names)
+        self.assertIn("init-opencode", names)
+
+    def test_mobile_depends_on_proxy_and_init(self):
+        deps = S6_ROOT / "ha-opencode-mobile" / "dependencies.d"
+        names = {d.name for d in deps.iterdir()} if deps.exists() else set()
+        self.assertIn("ha-opencode-proxy", names)
+        self.assertIn("init-opencode", names)
+
 
 if __name__ == "__main__":
     unittest.main()
