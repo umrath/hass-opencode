@@ -7,9 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ## 2.2.10
 
-## 2.2.10
-
-- **Fix LSP server crash** — added unhandledRejection/uncaughtException handlers to prevent silent crashes (same fix as MCP server).
+- **Fix LSP server crash** — added unhandledRejection/uncaughtException handlers.
 - **Fix GITHUB_PATTERNS_URL** — updated from magnusoverli/opencode to umrath/hass-opencode.
 - **Fix wait hang risk** — added `|| true` after `wait` in service trap handlers.
 - **Fix discover-services error logging** — added console.error in main().catch to surface discovery failures.
