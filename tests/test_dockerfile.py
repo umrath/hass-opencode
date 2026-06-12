@@ -78,6 +78,10 @@ class TestDockerfile(unittest.TestCase):
         self.assertTrue(m and "ttyd" in m.group(1),
             "health check should verify the ttyd process")
 
+    def test_healthcheck_start_period_sufficient(self):
+        self.assertIn("--start-period=60s", self.text,
+            "start-period must be >=60s so container reports 'starting' during boot")
+
     def test_has_hass_labels(self):
         for label in ("io.hass.name", "io.hass.type", "io.hass.version"):
             self.assertIn(label, self.text, f"missing label {label}")
