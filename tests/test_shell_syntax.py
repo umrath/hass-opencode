@@ -28,6 +28,7 @@ SHELL_SCRIPTS = [
     # CI scripts
     "ci/buildhost/build-base.sh",
     "ci/buildhost/build-image.sh",
+    "ci/buildhost/build-arm64-worker.sh",
     "ci/buildhost/install.sh",
     "ci/buildhost/run-ci.sh",
     "ci/version-bump.sh",
