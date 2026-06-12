@@ -11,4 +11,4 @@ Nice=10
 IOSchedulingClass=idle
 NoNewPrivileges=true
 TimeoutStartSec=7200
-ExecStart=/opt/ci/hass-opencode/repo/ci/buildhost/build-arm64-worker.sh
+ExecStart=/opt/ci/hass-opencode/bin/build-arm64-worker.sh

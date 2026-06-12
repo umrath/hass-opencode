@@ -89,6 +89,13 @@ self_update() {
     fi
   fi
 
+  if [ -f "$src/build-arm64-worker.sh" ] && ! cmp -s "$src/build-arm64-worker.sh" "$CI_HOME/bin/build-arm64-worker.sh"; then
+    if bash -n "$src/build-arm64-worker.sh" 2>/dev/null; then
+      install -m 0755 "$src/build-arm64-worker.sh" "$CI_HOME/bin/build-arm64-worker.sh" \
+        && log "self-update: arm64 worker refreshed (applies on next run)"
+    fi
+  fi
+
   command -v systemctl >/dev/null 2>&1 || return 0
   for u in hass-opencode-ci.service hass-opencode-ci.timer hass-opencode-arm64.service hass-opencode-arm64.timer; do
     if [ -f "$src/$u" ] && ! cmp -s "$src/$u" "/etc/systemd/system/$u"; then
