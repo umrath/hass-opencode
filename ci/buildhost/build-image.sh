@@ -72,9 +72,11 @@ echo "[build-image] starting arm64 build (QEMU, may take 15-20 min)…"
 # Removed on completion (success or failure).
 date -u +%s > "$ARM_STATE"
 
-(
-  set -euo pipefail
-  echo '[build-image-arm64] building…'
+# Use setsid to fully detach from the CI runner's process group.
+# Prevents BuildKit session cancellation when the CI runner exits.
+setsid bash -c "
+set -euo pipefail
+echo '[build-image-arm64] building…'
 
   if docker buildx build \
     --builder "$BUILDER" \
@@ -101,7 +103,7 @@ date -u +%s > "$ARM_STATE"
     printf 'FAIL %s\n' "$(date -u +%s)" > "$ARM_STATE"
     echo '[build-image-arm64] BUILD FAILED — arm64 not available for this release'
   fi
-) > "$ARM_LOG" 2>&1 &
+" > "$ARM_LOG" 2>&1 &
 
 ARM_PID=$!
 echo "[build-image] arm64 build detached (pid $ARM_PID, state $ARM_STATE)"
