@@ -54,6 +54,23 @@ class TestDesktopService(unittest.TestCase):
     def test_single_instance_fallback(self):
         self.assertIn("PORT=8099", self.text)
 
+    def test_single_instance_binds_all_interfaces(self):
+        """W1 regression: In single-instance mode (PORT=8099), ttyd must bind
+        0.0.0.0, not 127.0.0.1. HA Ingress connects from the container's
+        network IP, not loopback."""
+        # The -i 127.0.0.1 must be CONDITIONAL — only in proxy mode (PORT=8098).
+        # In single mode (PORT=8099), it must NOT be on the exec ttyd line.
+        # Check that the script has conditional logic for -i, not hardcoded.
+        exec_lines = [l for l in self.text.split("\n") if "exec ttyd" in l]
+        self.assertTrue(exec_lines, "must have exec ttyd")
+        full_line = " ".join(exec_lines)
+        # Currently broken: -i 127.0.0.1 is hardcoded for both modes.
+        # After fix: should only appear in proxy mode branch, not hardcoded.
+        # We verify: the -i flag should NOT be on the same line as ${PORT}
+        # because it needs to be conditional on mobile_proxy_enabled.
+        self.assertNotIn("-i 127.0.0.1", full_line,
+            "-i 127.0.0.1 must be conditional, not hardcoded on exec ttyd")
+
 
 class TestMobileService(unittest.TestCase):
     @classmethod

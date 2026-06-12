@@ -15,13 +15,15 @@ THEME_JSON=$(get_theme "${TERMINAL_THEME}")
 
 if [ "${MOBILE_ENABLED}" = "true" ]; then
     PORT=8098
+    IFACE_ARG="-i 127.0.0.1"
     SHELL_CMD="cd /homeassistant && tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh"
 else
     PORT=8099
+    IFACE_ARG=""
     SHELL_CMD="cd /homeassistant && tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh"
 fi
 
-exec ttyd -W -p ${PORT} -i 127.0.0.1 -I /opt/ttyd/index.html \
+exec ttyd -W -p ${PORT} ${IFACE_ARG} -I /opt/ttyd/index.html \
     -t fontSize="${FONT_SIZE}" \
     -t fontWeight=normal -t fontWeightBold=bold \
     -t letterSpacing=0 -t lineHeight=1.0 \
