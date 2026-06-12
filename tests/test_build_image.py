@@ -39,6 +39,12 @@ class TestBuildImageScript(unittest.TestCase):
     def test_uses_ghcr_registry(self):
         self.assertIn("ghcr.io", self.text)
 
+    def test_valid_shell_syntax(self):
+        import subprocess
+        result = subprocess.run(["bash", "-n", str(BUILD_IMAGE)], capture_output=True)
+        self.assertEqual(result.returncode, 0,
+            f"build-image.sh has a shell syntax error:\n{result.stderr.decode()}")
+
 
 if __name__ == "__main__":
     unittest.main()
