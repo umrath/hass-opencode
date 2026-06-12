@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.22
 
 - **Fix arm64 build** — dedicated BuildKit builder to prevent session cancellation.
 - **Test coverage** — comprehensive shell syntax, JS syntax, LSP startup, clipboard.js.
