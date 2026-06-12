@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Fix duplicate proxy startup** — removed duplicate `python3 proxy.py` call causing port 8099 conflict.
+- **Test: single proxy instance** — enforced to prevent recurrence.
+
 ## 2.2.11
 
 - **Fix watchdog restart loop** — extended HEALTHCHECK `--start-period` to 60s (was 5s). During the grace period the container reports as "starting" and HA Supervisor will not restart. Start proxy before ttyd so Ingress port 8099 binds immediately.
