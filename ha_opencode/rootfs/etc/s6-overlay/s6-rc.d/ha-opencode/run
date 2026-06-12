@@ -181,14 +181,23 @@ if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
     fi
     bashio::log.info "Proxy ready on port ${INGRESS_PORT}"
 
-    # Supervise all three. s6 supervises only this run script, so if one of the
-    # backgrounded ttyd backends (or the proxy) dies we tear the rest down and
-    # exit non-zero — s6 then restarts the whole terminal service cleanly.
-    # On SIGTERM (s6 stop) we forward the shutdown to all three.
+    # Supervise: poll all three children. If any dies, tear down.
+    # Avoids wait -n (which can return spuriously on signals).
     trap 'kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait; exit 0' TERM INT
-    wait -n
-    bashio::log.warning "A terminal component exited; restarting the terminal service"
-    kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null
+    while true; do
+        if ! kill -0 "$DESKTOP_PID" 2>/dev/null; then
+            bashio::log.error "Desktop ttyd (${DESKTOP_PID}) died"; break
+        fi
+        if ! kill -0 "$MOBILE_PID" 2>/dev/null; then
+            bashio::log.error "Mobile ttyd (${MOBILE_PID}) died"; break
+        fi
+        if ! kill -0 "$PROXY_PID" 2>/dev/null; then
+            bashio::log.error "Proxy (${PROXY_PID}) died"; break
+        fi
+        sleep 5
+    done
+    bashio::log.warning "A terminal component exited; restarting service"
+    kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait
     exit 1
 else
     bashio::log.info "Starting ttyd on port ${INGRESS_PORT} (single instance)"

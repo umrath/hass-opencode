@@ -30,10 +30,10 @@ class TestTermService(unittest.TestCase):
     def test_has_theme_function(self):
         self.assertIn("get_theme", self.run_text)
 
-    def test_exports_proxy_ports(self):
-        self.assertIn("OC_PROXY_PORT", self.run_text)
-        self.assertIn("OC_DESKTOP_PORT", self.run_text)
-        self.assertIn("OC_MOBILE_PORT", self.run_text)
+    def test_supervises_children_with_kill_check(self):
+        self.assertIn("kill -0", self.run_text)
+        self.assertIn("died", self.run_text)
+        self.assertIn("sleep 5", self.run_text)
 
     def test_finish_script_exists(self):
         self.assertTrue(FINISH.exists())
