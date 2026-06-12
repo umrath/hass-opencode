@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.6
 
 - **Pre-baked base image** — split Dockerfile into base (apt, npm, pip) and app (COPY rootfs). App builds complete in under 60 seconds.
 - **Fix MCP server crash** — moved unhandledRejection/uncaughtException handlers before module init.
