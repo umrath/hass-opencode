@@ -10,6 +10,7 @@ arch:
   - amd64
 startup: application
 init: false
+watchdog: false
 
 # Ingress configuration
 ingress: true

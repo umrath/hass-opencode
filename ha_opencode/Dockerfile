@@ -18,6 +18,12 @@ FROM ghcr.io/umrath/ha_opencode-base:latest@sha256:0851428f49b77c0dc74289a6c0e5a
 ARG BUILD_VERSION
 ARG BUILD_ARCH
 
+# The base image has the platform binary at opencode-ai/node_modules/opencode-linux-x64/bin/opencode
+# but the opencode CLI wrapper expects it at opencode-ai/bin/opencode.exe.
+# The init script normally creates this symlink at runtime, but with the bundled-only
+# policy it may not run. Create it at build time.
+RUN ln -sf node_modules/opencode-linux-x64/bin/opencode /usr/local/lib/node_modules/opencode-ai/bin/opencode.exe
+
 # Copy hab CLI from builder stage
 COPY --from=hab-builder /hab /usr/local/bin/hab
 
