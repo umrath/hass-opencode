@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Proxy starts before init** — removed init-opencode dependency so port 8099 binds immediately on container start.
+
 ## 2.2.14
 
 - **Three-service s6 architecture** — replaced monolithic multiprocess bash with independent s6 services. Proxy, desktop ttyd, mobile ttyd each supervised individually.
