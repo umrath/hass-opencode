@@ -13,7 +13,7 @@ RUN _A="${BUILD_ARCH:-$TARGETARCH}" \
     && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /hab .
 
 # Stage 2: App image — inherits from our pre-built base (apt, npm, pip pre-baked)
-FROM ghcr.io/umrath/ha_opencode-base:latest
+FROM ghcr.io/umrath/ha_opencode-base:latest@sha256:0851428f49b77c0dc74289a6c0e5a57894cc59a537daa6d84ba0aefa27eb8c59
 
 ARG BUILD_VERSION
 ARG BUILD_ARCH

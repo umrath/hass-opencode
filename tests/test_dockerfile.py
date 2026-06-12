@@ -54,8 +54,8 @@ class TestDockerfile(unittest.TestCase):
         self.assertRegex(self.text, r"(?m)^COPY\s+--from=hab-builder\s")
 
     def test_final_stage_from_build_from(self):
-        self.assertRegex(self.text, r"(?m)^FROM\s+ghcr\.io/umrath/ha_opencode-base:latest\b",
-            "final stage must build FROM the pre-baked base image")
+        self.assertRegex(self.text, r"(?m)^FROM\s+ghcr\.io/umrath/ha_opencode-base:latest@sha256:[a-f0-9]{64}\b",
+            "app must pin base image by digest for reproducible builds")
 
     def test_installs_core_tooling(self):
         for tool in ("nodejs", "git", "jq", "tmux", "python3"):

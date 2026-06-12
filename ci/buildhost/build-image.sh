@@ -34,6 +34,16 @@ REF="$REGISTRY/$OWNER/$IMAGE"
 # ── amd64 (native, fast) ──────────────────────────────────────────────────────
 echo "[build-image] building amd64 (native)…"
 
+# Verify the base image exists for all target architectures before building.
+# The app Dockerfile pins the base by digest; if it's missing the build fails
+# late with a confusing error. Fail early with a clear message.
+BASE_REF="ghcr.io/umrath/ha_opencode-base:latest"
+echo "[build-image] checking base image: $BASE_REF"
+if ! docker buildx imagetools inspect "$BASE_REF" >/dev/null 2>&1; then
+    echo "[build-image] FATAL: base image $BASE_REF not found — build base first with ci/buildhost/build-base.sh"
+    exit 1
+fi
+
 docker buildx build \
   --builder "$BUILDER" \
   --platform linux/amd64 \
