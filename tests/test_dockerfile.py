@@ -72,15 +72,9 @@ class TestDockerfile(unittest.TestCase):
     def test_workdir_is_homeassistant(self):
         self.assertRegex(self.text, r"(?m)^WORKDIR\s+/homeassistant\b")
 
-    def test_healthcheck_watches_ttyd(self):
-        self.assertIn("HEALTHCHECK", self.text)
-        m = re.search(r"HEALTHCHECK.*?CMD\s+(.+)", self.text, re.DOTALL)
-        self.assertTrue(m and "ttyd" in m.group(1),
-            "health check should verify the ttyd process")
-
-    def test_healthcheck_start_period_sufficient(self):
-        self.assertIn("--start-period=60s", self.text,
-            "start-period must be >=60s so container reports 'starting' during boot")
+    def test_no_docker_healthcheck(self):
+        """s6 is the process supervisor. Docker HEALTHCHECK conflicts with it."""
+        self.assertNotIn("HEALTHCHECK", self.text)
 
     def test_has_hass_labels(self):
         for label in ("io.hass.name", "io.hass.type", "io.hass.version"):

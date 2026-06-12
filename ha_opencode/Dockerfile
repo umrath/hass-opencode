@@ -59,12 +59,6 @@ RUN set -e; \
 
 WORKDIR /homeassistant
 
-# Grace period covers init (npm install, AGENTS.md, chromium check) + service start
-# (ttyd bind, proxy startup). HA Supervisor respects "starting" state during the
-# HEALTHCHECK start-period and won't restart the container while it's still booting.
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD pgrep ttyd > /dev/null || exit 1
-
 LABEL \
     io.hass.name="OpenCode" \
     io.hass.description="AI coding agent for editing Home Assistant configuration" \
