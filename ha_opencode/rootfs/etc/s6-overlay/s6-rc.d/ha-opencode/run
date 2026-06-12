@@ -165,7 +165,7 @@ if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
     # backgrounded ttyd backends (or the proxy) dies we tear the rest down and
     # exit non-zero — s6 then restarts the whole terminal service cleanly.
     # On SIGTERM (s6 stop) we forward the shutdown to all three.
-    trap 'kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; exit 0' TERM INT
+    trap 'kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait; exit 0' TERM INT
     wait -n
     bashio::log.warning "A terminal component exited; restarting the terminal service"
     kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null
