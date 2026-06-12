@@ -38,7 +38,7 @@ RUN (cd /opt/ha-mcp-server && npm install --omit=dev) & \
 # Copy our source (scripts, MCP/LSP server code, config)
 COPY rootfs /
 
-RUN chmod +x /usr/local/bin/* \
+RUN shopt -s nullglob && chmod +x /usr/local/bin/* \
     && chmod +x /etc/s6-overlay/s6-rc.d/init-opencode/run \
     && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-proxy/run \
     && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-desktop/run \
