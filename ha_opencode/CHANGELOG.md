@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Use bundled opencode** — skip runtime npm update to avoid postinstall binary detection bugs.
+
 ## 2.2.18
 
 - **s6-only supervision** — removed Docker HEALTHCHECK and HA Supervisor watchdog. s6 is the sole process supervisor.
