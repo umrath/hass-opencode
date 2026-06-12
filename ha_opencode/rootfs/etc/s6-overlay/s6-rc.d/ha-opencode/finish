@@ -1,0 +1,7 @@
+#!/command/with-contenv bashio
+# Clean up background ttyd processes when the service stops.
+# In mobile proxy mode, ttyd runs in background (&) and the foreground
+# process is the proxy (via exec). When the proxy exits S6 restarts the
+# service, but background ttyd processes survive and block the ports.
+# Kill them so the next start can bind cleanly.
+kill $(pgrep ttyd) 2>/dev/null || true
