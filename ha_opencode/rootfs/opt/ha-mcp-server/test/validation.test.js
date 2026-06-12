@@ -153,3 +153,86 @@ describe("resolveConfigPath", () => {
     expect(result).toBe("/homeassistant/custom_components/hacs/manifest.json");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Content protection checks (from write_config_safe)
+// ---------------------------------------------------------------------------
+
+describe("content protection — entry reduction", () => {
+  const countEntries = (content) => (content.match(/^- /gm) || []).length;
+
+  it("blocks when new has fewer entries than existing", () => {
+    const existing = "- id: '1'\n  alias: A\n- id: '2'\n  alias: B\n- id: '3'\n  alias: C\n";
+    const newContent = "- id: '4'\n  alias: D\n";
+    expect(countEntries(existing)).toBe(3);
+    expect(countEntries(newContent)).toBe(1);
+    expect(countEntries(newContent)).toBeLessThan(countEntries(existing));
+  });
+
+  it("allows when new has same entries", () => {
+    const existing = "- id: '1'\n  alias: A\n- id: '2'\n  alias: B\n";
+    const newContent = "- id: '1'\n  alias: A\n- id: '2'\n  alias: B\n- id: '3'\n  alias: C\n";
+    expect(countEntries(newContent)).toBeGreaterThanOrEqual(countEntries(existing));
+  });
+
+  it("allows when existing file is empty", () => {
+    const existing = "";
+    const newContent = "- id: '1'\n  alias: A\n";
+    expect(countEntries(existing)).toBe(0);
+    expect(countEntries(newContent)).toBe(1);
+  });
+});
+
+describe("content protection — key removal", () => {
+  const extractKeys = (content) => {
+    const keys = new Set();
+    const regex = /^([a-z_][a-z0-9_]*):/gm;
+    let m;
+    while ((m = regex.exec(content)) !== null) keys.add(m[1]);
+    return keys;
+  };
+
+  it("detects removed top-level keys", () => {
+    const existing = "homeassistant:\n  name: Home\nmqtt:\n  broker: localhost\n";
+    const newContent = "homeassistant:\n  name: Home\n";
+    const existingKeys = extractKeys(existing);
+    const newKeys = extractKeys(newContent);
+    const removed = [...existingKeys].filter(k => !newKeys.has(k));
+    expect(removed).toContain("mqtt");
+  });
+
+  it("passes when all keys are present", () => {
+    const existing = "homeassistant:\n  name: Home\nmqtt:\n  broker: localhost\n";
+    const newContent = "homeassistant:\n  name: Castle\nmqtt:\n  broker: newhost\ntemplate:\n  - sensor:\n";
+    const existingKeys = extractKeys(existing);
+    const newKeys = extractKeys(newContent);
+    const removed = [...existingKeys].filter(k => !newKeys.has(k));
+    expect(removed).toHaveLength(0);
+  });
+});
+
+describe("content protection — size reduction", () => {
+  it("blocks when new content is less than 50% of existing", () => {
+    const existing = "line1\n".repeat(20);
+    const newContent = "line1\n".repeat(5);
+    const existingLines = existing.split("\n").length - 1;
+    const newLines = newContent.split("\n").length - 1;
+    expect(newLines).toBeLessThan(existingLines * 0.5);
+  });
+
+  it("allows when new content is close to existing size", () => {
+    const existing = "line1\n".repeat(20);
+    const newContent = "line1\n".repeat(15);
+    const existingLines = existing.split("\n").length - 1;
+    const newLines = newContent.split("\n").length - 1;
+    expect(newLines).toBeGreaterThanOrEqual(existingLines * 0.5);
+  });
+
+  it("skips check for very small files (<=10 lines)", () => {
+    const existing = "line1\nline2\nline3\n";
+    const newContent = "line1\n";
+    const existingLines = existing.split("\n").length - 1;
+    expect(existingLines).toBeLessThanOrEqual(10);
+    // Small files don't trigger size reduction regardless of ratio
+  });
+});

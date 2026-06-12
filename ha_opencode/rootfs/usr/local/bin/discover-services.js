@@ -274,6 +274,7 @@ async function main() {
   }
 }
 
-main().catch(() => {
-  // Swallow all errors — this is best-effort discovery
+main().catch((err) => {
+  console.error("discover-services: discovery failed:", err.message);
+  process.exitCode = 1;
 });

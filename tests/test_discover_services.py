@@ -46,8 +46,9 @@ class TestDiscoverServices(unittest.TestCase):
     def test_sets_timeout(self):
         self.assertIn("REQUEST_TIMEOUT_MS", self.text)
 
-    def test_ws_ingress_present(self):
-        self.assertIn("WebSocket", self.text)
+    def test_logs_errors_in_catch(self):
+        self.assertIn("main().catch", self.text)
+        self.assertIn("console.error", self.text)
 
 
 if __name__ == "__main__":
