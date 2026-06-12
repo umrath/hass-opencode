@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Dedicated arm64 build worker — single-flighted, processes pending markers.
-# Runs independently of the main CI runner. One version at a time.
+# Dedicated arm64 build worker — single-flighted via flock, processes pending
+# markers newest-first. Transient failures retry (marker kept, attempt counted).
 set -euo pipefail
 
 export DOCKER_CONFIG="${CI_DOCKER_CONFIG:-/root/.docker}"
@@ -8,28 +8,38 @@ BUILDER="${CI_BUILDX_BUILDER:-ci-multiarch}-arm64"
 STATE_DIR="${CI_STATE_DIR:-/opt/ci/hass-opencode/state}"
 ARM_MARKER="$STATE_DIR/arm64-pending"
 ARM_RESULT="$STATE_DIR/arm64-results"
+LOCK="$STATE_DIR/arm64-worker.lock"
 REPO_ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 
 REGISTRY=ghcr.io
 OWNER=umrath
 IMAGE=ha_opencode
 REF="$REGISTRY/$OWNER/$IMAGE"
+MAX_ATTEMPTS=5
 
 mkdir -p "$ARM_MARKER" "$ARM_RESULT"
 
-# Dedicated arm64 builder — separate from CI builder to avoid session cancellation
 if ! docker buildx inspect "$BUILDER" >/dev/null 2>&1; then
     docker buildx create --name "$BUILDER" 2>/dev/null || true
 fi
 
 log() { echo "[arm64-worker] $*"; }
 
-# Process one pending version
 process() {
     local version="$1"
-    log "building arm64 for $version"
+    local attempts
+    attempts=$(cat "$ARM_RESULT/$version.attempts" 2>/dev/null || echo 0)
 
-    if ! docker buildx build \
+    if [ "$attempts" -ge "$MAX_ATTEMPTS" ]; then
+        log "version $version failed $MAX_ATTEMPTS times — giving up"
+        rm -f "$ARM_MARKER/$version" "$ARM_RESULT/$version.attempts"
+        printf 'GIVEN_UP %s\n' "$(date -u +%s)" > "$ARM_RESULT/$version"
+        return
+    fi
+
+    log "building arm64 for $version (attempt $((attempts + 1))/$MAX_ATTEMPTS)"
+
+    if docker buildx build \
         --builder "$BUILDER" \
         --platform linux/arm64 \
         --file "$REPO_ROOT/ha_opencode/Dockerfile" \
@@ -43,12 +53,11 @@ process() {
         --push \
         "$REPO_ROOT/ha_opencode/"
     then
-        log "pushing arm64 for $version succeeded — merging into manifest"
+        log "arm64 for $version succeeded — merging into manifest"
         docker buildx imagetools create \
             --tag "$REF:$version" \
             "$REF/amd64:$version" "$REF/aarch64:$version"
 
-        # Update :latest only if this is still the newest version
         local last_built
         last_built=$(cat "$STATE_DIR/last-built-version" 2>/dev/null || echo "")
         if [ "$version" = "$last_built" ]; then
@@ -61,20 +70,25 @@ process() {
         fi
 
         printf 'OK %s\n' "$(date -u +%s)" > "$ARM_RESULT/$version"
+        rm -f "$ARM_MARKER/$version" "$ARM_RESULT/$version.attempts"
     else
-        printf 'FAIL %s\n' "$(date -u +%s)" > "$ARM_RESULT/$version"
-        log "arm64 build FAILED for $version — will retry on next run"
+        attempts=$((attempts + 1))
+        echo "$attempts" > "$ARM_RESULT/$version.attempts"
+        printf 'FAIL %s (attempt %s)\n' "$(date -u +%s)" "$attempts" > "$ARM_RESULT/$version"
+        log "arm64 build FAILED for $version (attempt $attempts/$MAX_ATTEMPTS) — marker kept for retry"
     fi
-
-    rm -f "$ARM_MARKER/$version"
 }
 
-# Process pending versions (one at a time)
-for marker in "$ARM_MARKER"/*; do
-    [ -f "$marker" ] || continue
-    version=$(cat "$marker")
+# ── single-flighted via flock, newest-first ──────────────────────────────────
+exec 9>"$LOCK"
+flock -n 9 || { log "another worker is active — exiting"; exit 0; }
+
+# Process pending: newest first so the latest release gets arm64 fastest
+for marker in $(ls -1t "$ARM_MARKER/" 2>/dev/null); do
+    [ -f "$ARM_MARKER/$marker" ] || continue
+    version=$(cat "$ARM_MARKER/$marker")
     process "$version"
-    # One at a time — the next cron/timer tick picks up remaining
+    # One version per invocation — the timer handles the next one
     break
 done
 

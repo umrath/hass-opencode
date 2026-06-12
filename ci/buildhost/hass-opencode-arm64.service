@@ -10,5 +10,5 @@ Environment=HOME=/opt/ci/hass-opencode
 Nice=10
 IOSchedulingClass=idle
 NoNewPrivileges=true
-TimeoutStartSec=1800
+TimeoutStartSec=7200
 ExecStart=/opt/ci/hass-opencode/repo/ci/buildhost/build-arm64-worker.sh
