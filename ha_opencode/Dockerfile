@@ -44,12 +44,11 @@ ENV NODE_ENV=production \
 # - curl/ca-certificates: For downloading ttyd
 # - procps: Provides pgrep for health check
 # - tmux: Session persistence to prevent multiple OpenCode instances
-# - chromium: Headless browser for screenshot_url MCP tool (visual verification)
+# - chromium: installed at runtime only when screenshot_enabled=true (saves ~1 GB)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends \
-        chromium \
         git \
         jq \
         nodejs \
@@ -60,7 +59,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 # npm is included in the nodesource nodejs package
 
-# Chromium path for puppeteer-core (used by screenshot MCP tool)
+# Chromium path for puppeteer-core (chromium installed at runtime when
+# screenshot_enabled=true, see init-opencode/run)
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Install ttyd from GitHub releases (not in Debian repos)

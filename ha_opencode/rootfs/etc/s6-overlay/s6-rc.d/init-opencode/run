@@ -249,6 +249,10 @@ bashio::log.info "zigporter credentials configured (HA via Supervisor proxy)"
 # ==============================================================================
 
 if [ "${SCREENSHOT_ENABLED}" = "true" ]; then
+    if ! command -v chromium >/dev/null 2>&1; then
+        bashio::log.info "Screenshot enabled — installing chromium (~1 GB, one-time)"
+        apt-get update -qq && apt-get install -y --no-install-recommends chromium && rm -rf /var/lib/apt/lists/*
+    fi
     printf 'export SCREENSHOT_ENABLED=true\n' >> "${ENV_VARS_FILE}"
     chmod 600 "${ENV_VARS_FILE}"
     bashio::log.info "Screenshot tool enabled (Chromium headless for visual verification)"
