@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.17
 
 - **Restore init-opencode dependency** — desktop and mobile ttyd now wait for config generation before starting, so opencode finds a valid opencode.json.
 
