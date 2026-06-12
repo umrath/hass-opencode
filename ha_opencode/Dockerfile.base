@@ -4,14 +4,14 @@
 #
 # Rebuild when: Debian Trixie base updates, Node 22 updates, opencode-ai updates.
 # Rebuild schedule: weekly via cron on the build host.
+FROM ghcr.io/home-assistant/base-debian:trixie
+
 ARG BUILD_ARCH
 ARG TARGETARCH
 ARG TTYD_VERSION=1.7.7
 ARG OPENCODE_VERSION=latest
 ARG PPQ_PROXY_VERSION=0.1.0
 ARG TSX_VERSION=4.20.6
-
-FROM ghcr.io/home-assistant/base-debian:trixie
 
 ENV NODE_ENV=production \
     npm_config_update_notifier=false \
