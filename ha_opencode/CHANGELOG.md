@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 2.2.7
+
+- **Fix MCP server stability** — removed `process.exit` when SUPERVISOR_TOKEN is missing (server stays alive), increased MCP tool timeout from 10s to 60s.
+
 ## 2.2.6
 
 - **Pre-baked base image** — split Dockerfile into base (apt, npm, pip) and app (COPY rootfs). App builds complete in under 60 seconds.
