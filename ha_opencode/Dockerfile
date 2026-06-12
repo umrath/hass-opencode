@@ -70,3 +70,4 @@ LABEL \
     io.hass.description="AI coding agent for editing Home Assistant configuration" \
     io.hass.type="app" \
     io.hass.version="${BUILD_VERSION}"
+
