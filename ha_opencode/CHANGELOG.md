@@ -1,4 +1,9 @@
 # Changelog
+
+## 2.2.8
+
+- _(auto-activated — no Unreleased section present)_
+
 All notable changes to this project will be documented in this file.
 
 ## 2.2.7
