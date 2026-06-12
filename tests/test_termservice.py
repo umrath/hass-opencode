@@ -26,9 +26,18 @@ class TestTermService(unittest.TestCase):
 
     def test_has_single_instance_branch(self):
         self.assertIn("single instance", self.run_text)
+        self.assertIn("exec ttyd", self.run_text)
 
     def test_has_theme_function(self):
         self.assertIn("get_theme", self.run_text)
+
+    def test_proxy_starts_before_ttyd(self):
+        """Regression: proxy must bind BEFORE ttyd so ingress port 8099 is available immediately.
+        The HA Supervisor checks ingress right after container start."""
+        proxy_idx = self.run_text.find("proxy.py")
+        ttyd_idx = self.run_text.find("ttyd -W -p ${DESKTOP_PORT}")
+        self.assertLess(proxy_idx, ttyd_idx,
+            "proxy must start before ttyd backends (proxy binds ingress port immediately)")
 
     def test_supervises_children_with_kill_check(self):
         self.assertIn("kill -0", self.run_text)

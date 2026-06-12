@@ -39,6 +39,14 @@ class TestProxyScript(unittest.TestCase):
     def test_touch_probe_present(self):
         self.assertIn("navigator.maxTouchPoints", self.text)
 
+    def test_default_ports_differ_from_run_script(self):
+        """Proxy defaults (7681) must differ from run script ports (8099).
+        If they matched, a missing export would silently succeed and
+        mask the root cause of the watchdog restart."""
+        self.assertIn('"7681"', self.text)  # OC_PROXY_PORT default
+        self.assertIn('"7682"', self.text)  # OC_DESKTOP_PORT default
+        self.assertIn('"7683"', self.text)  # OC_MOBILE_PORT default
+
 
 if __name__ == "__main__":
     unittest.main()
