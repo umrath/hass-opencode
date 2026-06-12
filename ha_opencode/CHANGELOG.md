@@ -7,8 +7,12 @@ All notable changes to this project will be documented in this file.
 
 ## 2.2.6
 
-- **Pre-baked base image** — split Dockerfile into base (apt, npm, pip) and app (COPY rootfs). App builds complete in under 60 seconds.
-- **Fix MCP server crash** — moved unhandledRejection/uncaughtException handlers before module init.
+- **Pre-baked base image** — split Dockerfile into base (apt, npm, pip) and app (COPY rootfs). App builds complete in under 30 seconds.
+
+## 2.2.5
+
+- **Fix MCP server crash** — moved unhandledRejection/uncaughtException handlers before module initialization to catch startup errors.
+- **Fix watchdog restart loop** — added `wait` after `kill` in SIGTERM trap to prevent port races on service restart.
 
 ## 2.2.4
 
