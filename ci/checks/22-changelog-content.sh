@@ -27,17 +27,23 @@ if [ -z "$target" ]; then
   finish_check; exit $?
 fi
 
+# Only enforce when this version hasn't shipped yet.
+# If config.yaml already has this version, the release was already activated.
+cur_ver=$(grep -m1 '^version:' ha_opencode/config.yaml | sed 's/.*"\(.*\)".*/\1/' 2>/dev/null || echo "")
+if [ "$target" = "$cur_ver" ]; then
+  skip "version $target already activated in config.yaml"
+  finish_check; exit $?
+fi
+
 # Extract content between "## Unreleased" and the next "## " heading
 unreleased=$(awk '/^## Unreleased/ { found=1; next } found && /^## / { exit } found { print }' "$CHANGELOG")
 
-# Remove empty lines and whitespace for a content check
-content_lines=$(printf '%s\n' "$unreleased" | grep -c '[^[:space:]]' 2>/dev/null || echo 0)
-
-if [ "$content_lines" -eq 0 ]; then
+# Check if there's any non-whitespace content in the Unreleased section
+if ! printf '%s\n' "$unreleased" | grep -q '[^[:space:]]' 2>/dev/null; then
   fail "## Unreleased section in $CHANGELOG has no content."
   info "Add release notes under '## Unreleased' before creating ci/RELEASE_TARGET."
 else
-  pass "## Unreleased has $content_lines line(s) — ready for release"
+  pass "## Unreleased has content — ready for release"
 fi
 
 finish_check; exit $?
