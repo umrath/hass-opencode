@@ -40,6 +40,7 @@ RUN chmod +x /usr/local/bin/* \
     && chmod +x /etc/profile.d/hab-esphome.sh \
     && chmod +x /etc/profile.d/zigporter-z2m.sh \
     && chmod +x /usr/share/oc-proxy/proxy.py \
+    && chmod +x /usr/share/oc-proxy/supervisor.py \
     && mkdir -p /data/.local/share/opencode /data/.config/opencode
 
 RUN set -e; \

@@ -127,81 +127,23 @@ DESKTOP_PORT=8098
 MOBILE_PORT=8097
 
 if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
-    bashio::log.info "Starting dual ttyd + mobile proxy (desktop:${DESKTOP_PORT}, mobile:${MOBILE_PORT})"
-
-    # Start proxy FIRST — binds to ingress port 8099 immediately (<0.1s).
-    # HA Supervisor checks the ingress port right after container start.
-    # ttyd backends start afterwards and the proxy retries connections if
-    # they aren't ready yet (5 attempts, 0.5s delay).
-    export OC_PROXY_PORT=${INGRESS_PORT} OC_DESKTOP_PORT=${DESKTOP_PORT} OC_MOBILE_PORT=${MOBILE_PORT}
-    python3 /usr/share/oc-proxy/proxy.py &
-    PROXY_PID=$!
+    bashio::log.info "Starting Python supervisor — proxy + dual ttyd"
 
     FONT_SIZE_MOBILE=$((FONT_SIZE + 2))
     [ "${FONT_SIZE_MOBILE}" -gt 24 ] && FONT_SIZE_MOBILE=24
 
-    # Desktop: tmux, normal font, localhost
-    ttyd -W -p ${DESKTOP_PORT} -i 127.0.0.1 -I /opt/ttyd/index.html \
-        -t fontSize="${FONT_SIZE}" \
-        -t fontWeight=normal -t fontWeightBold=bold \
-        -t letterSpacing=0 -t lineHeight=1.0 \
-        -t cursorBlink="${CURSOR_BLINK}" -t cursorStyle="${CURSOR_STYLE}" \
-        -t drawBoldTextInBrightColors=true -t minimumContrastRatio=4.5 \
-        -t macOptionClickForcesSelection=true -t scrollback=5000 \
-        -t "theme=${THEME_JSON}" \
-        tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh &
-    DESKTOP_PID=$!
+    export OC_PROXY_PORT=${INGRESS_PORT}
+    export OC_DESKTOP_PORT=${DESKTOP_PORT}
+    export OC_MOBILE_PORT=${MOBILE_PORT}
+    export TTYD_FONT_SIZE=${FONT_SIZE}
+    export TTYD_FONT_SIZE_MOBILE=${FONT_SIZE_MOBILE}
+    export TTYD_CURSOR_BLINK=${CURSOR_BLINK}
+    export TTYD_CURSOR_STYLE=${CURSOR_STYLE}
+    export TTYD_THEME=${THEME_JSON}
 
-    # Mobile: no tmux, larger font, localhost
-    ttyd -W -p ${MOBILE_PORT} -i 127.0.0.1 -I /opt/ttyd/index.html \
-        -t fontSize="${FONT_SIZE_MOBILE}" \
-        -t fontWeight=normal -t fontWeightBold=bold \
-        -t letterSpacing=0 -t lineHeight=1.0 \
-        -t cursorBlink="${CURSOR_BLINK}" -t cursorStyle="${CURSOR_STYLE}" \
-        -t drawBoldTextInBrightColors=true -t minimumContrastRatio=4.5 \
-        -t macOptionClickForcesSelection=true -t scrollback=5000 \
-        -t "theme=${THEME_JSON}" \
-        /usr/local/bin/opencode-session.sh &
-        MOBILE_PID=$!
+    exec python3 /usr/share/oc-proxy/supervisor.py
 
-    # Wait for proxy to become ready — poll the ingress port.
-    # If it fails to start within 15 seconds, tear down and exit.
-    READY=0
-    for i in $(seq 1 30); do
-        if curl -sf -o /dev/null http://127.0.0.1:${INGRESS_PORT}/ 2>/dev/null; then
-            READY=1; break
-        fi
-        if ! kill -0 "$PROXY_PID" 2>/dev/null; then
-            bashio::log.error "Proxy process died during startup"
-            break
-        fi
-        sleep 0.5
-    done
-    if [ "$READY" != "1" ]; then
-        bashio::log.error "Proxy failed to start within 15s — exiting"
-    kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait 2>/dev/null || true
-        exit 1
-    fi
-    bashio::log.info "Proxy ready on port ${INGRESS_PORT}"
-
-    # Supervise: poll all three children. If any dies, tear down.
-    # Avoids wait -n (which can return spuriously on signals).
-    trap 'kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait 2>/dev/null || true; exit 0' TERM INT
-    while true; do
-        if ! kill -0 "$DESKTOP_PID" 2>/dev/null; then
-            bashio::log.error "Desktop ttyd (${DESKTOP_PID}) died"; break
-        fi
-        if ! kill -0 "$MOBILE_PID" 2>/dev/null; then
-            bashio::log.error "Mobile ttyd (${MOBILE_PID}) died"; break
-        fi
-        if ! kill -0 "$PROXY_PID" 2>/dev/null; then
-            bashio::log.error "Proxy (${PROXY_PID}) died"; break
-        fi
-        sleep 5
-    done
-    bashio::log.warning "A terminal component exited; restarting service"
-    kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait
-    exit 1
+else
 else
     bashio::log.info "Starting ttyd on port ${INGRESS_PORT} (single instance)"
     exec ttyd \

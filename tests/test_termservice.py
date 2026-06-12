@@ -28,27 +28,12 @@ class TestTermService(unittest.TestCase):
         self.assertIn("single instance", self.run_text)
         self.assertIn("exec ttyd", self.run_text)
 
+    def test_mobile_mode_uses_python_supervisor(self):
+        self.assertIn("supervisor.py", self.run_text)
+        self.assertIn("exec python3 /usr/share/oc-proxy/supervisor.py", self.run_text)
+
     def test_has_theme_function(self):
         self.assertIn("get_theme", self.run_text)
-
-    def test_proxy_starts_before_ttyd(self):
-        """Regression: proxy must bind BEFORE ttyd so ingress port 8099 is available immediately.
-        The HA Supervisor checks ingress right after container start."""
-        proxy_idx = self.run_text.find("proxy.py")
-        ttyd_idx = self.run_text.find("ttyd -W -p ${DESKTOP_PORT}")
-        self.assertLess(proxy_idx, ttyd_idx,
-            "proxy must start before ttyd backends (proxy binds ingress port immediately)")
-
-    def test_only_one_proxy_instance(self):
-        """Port 8099 can only be bound once. A duplicate proxy call crashes."""
-        count = self.run_text.count("proxy.py")
-        self.assertEqual(count, 1,
-            f"exactly one proxy.py call expected, found {count}")
-
-    def test_supervises_children_with_kill_check(self):
-        self.assertIn("kill -0", self.run_text)
-        self.assertIn("died", self.run_text)
-        self.assertIn("sleep 5", self.run_text)
 
     def test_finish_script_exists(self):
         self.assertTrue(FINISH.exists())
