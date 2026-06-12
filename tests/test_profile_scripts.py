@@ -20,7 +20,7 @@ class TestHabEspHome(unittest.TestCase):
         self.assertIn("esphome", self.text.lower())
 
     def test_blocks_esphome_without_token(self):
-        self.assertIn('echo "ESPHome commands require', self.text)
+        self.assertIn("ESPHome tools require", self.text)
 
     def test_passes_other_hab_commands(self):
         self.assertIn('command hab "$@"', self.text)
@@ -38,11 +38,11 @@ class TestZigporterZ2M(unittest.TestCase):
         self.assertIn("Z2M_URL", self.text)
 
     def test_blocks_z2m_without_url(self):
-        self.assertIn("requires Zigbee2MQTT URL", self.text)
+        self.assertIn("Zigbee2MQTT configuration", self.text)
 
     def test_z2m_dependent_commands_blocked(self):
         self.assertIn("list-z2m", self.text)
-        self.assertIn("network-map", self.text)
+        self.assertIn("migrate", self.text)
 
     def test_passes_other_zigporter_commands(self):
         self.assertIn('command zigporter "$@"', self.text)

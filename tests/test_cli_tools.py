@@ -16,7 +16,7 @@ class TestHaMcp(unittest.TestCase):
         self.assertTrue(HA_MCP.exists())
 
     def test_has_shebang(self):
-        self.assertIn("#!/command/with-contenv bashio", self.text)
+        self.assertIn("#!/usr/bin/env bash", self.text)
 
     def test_supports_status_command(self):
         self.assertIn("status", self.text)
@@ -30,7 +30,7 @@ class TestHaMcp(unittest.TestCase):
     def test_checks_supervisor_token(self):
         self.assertIn("SUPERVISOR_TOKEN", self.text)
 
-    def test_uses_open code_config(self):
+    def test_uses_opencode_config(self):
         self.assertIn("opencode.json", self.text)
 
 
@@ -43,7 +43,7 @@ class TestHaLogs(unittest.TestCase):
         self.assertTrue(HA_LOGS.exists())
 
     def test_has_shebang(self):
-        self.assertIn("#!/command/with-contenv bashio", self.text)
+        self.assertIn("#!/usr/bin/env bash", self.text)
 
     def test_supports_core_logs(self):
         self.assertIn("core", self.text.lower())
