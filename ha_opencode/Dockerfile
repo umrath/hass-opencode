@@ -57,8 +57,8 @@ RUN set -e; \
 
 WORKDIR /homeassistant
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD pgrep ttyd > /dev/null || exit 1
+# HA Supervisor manages health checks via Ingress. A separate Docker HEALTHCHECK
+# would race with the Supervisor watchdog and cause premature container restarts.
 
 LABEL \
     io.hass.name="OpenCode" \

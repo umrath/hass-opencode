@@ -129,6 +129,14 @@ MOBILE_PORT=8097
 if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
     bashio::log.info "Starting dual ttyd + mobile proxy (desktop:${DESKTOP_PORT}, mobile:${MOBILE_PORT})"
 
+    # Start proxy FIRST — binds to ingress port 8099 immediately (<0.1s).
+    # HA Supervisor checks the ingress port right after container start.
+    # ttyd backends start afterwards and the proxy retries connections if
+    # they aren't ready yet (5 attempts, 0.5s delay).
+    export OC_PROXY_PORT=${INGRESS_PORT} OC_DESKTOP_PORT=${DESKTOP_PORT} OC_MOBILE_PORT=${MOBILE_PORT}
+    python3 /usr/share/oc-proxy/proxy.py &
+    PROXY_PID=$!
+
     FONT_SIZE_MOBILE=$((FONT_SIZE + 2))
     [ "${FONT_SIZE_MOBILE}" -gt 24 ] && FONT_SIZE_MOBILE=24
 
