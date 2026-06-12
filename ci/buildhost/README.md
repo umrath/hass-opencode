@@ -2,7 +2,18 @@
 
 A small, self-contained CI/CD runner for the build host — **no GitHub Actions,
 no third-party CI service**. It detects new commits on the tracked branch and
-runs the in-repo quality gates ([`../run.sh`](../run.sh)) automatically.
+runs the in-repo quality gates ([`../run.sh`](../run.sh)) automatically. When a
+release tag is detected via `ci/RELEASE_TARGET`, the image is built and pushed.
+
+## Image build (decoupled arches)
+
+- **amd64 first** — builds natively on the host, completes in ~5-8 min. The
+  release manifest is published immediately after amd64 is pushed.
+- **arm64 async** — builds via QEMU emulation in the background (~15-20 min).
+  Merged into the multi-arch manifest when complete.
+- **arm64 users may see a brief delay** between the release appearing in HA
+  (amd64) and the image becoming available for their platform. A retry after
+  a few minutes will succeed once the background build finishes.
 
 ## Triggering (auto-on-commit + coalescing)
 
