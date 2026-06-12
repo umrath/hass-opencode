@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.19
 
 - **Use bundled opencode** — skip runtime npm update to avoid postinstall binary detection bugs.
 
