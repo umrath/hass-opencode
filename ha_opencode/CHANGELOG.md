@@ -1,25 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
-
 ## 2.2.9
 
-- **Fix watchdog restart loop** — replaced `wait -n` (spurious signal returns) with `kill -0` health check loop.
-- **Proxy startup hardening** — readiness check polling, startup logging, lifecycle tests.
-
-## 2.2.9
-
-- _(auto-activated)_
+- **Fix watchdog restart loop** — replaced `wait -n` (spurious signal returns) with `kill -0` health check loop that logs which process died.
+- **Proxy startup hardening** — readiness check, startup logging, lifecycle tests.
 
 ## 2.2.8
 
-- **Fix proxy startup** — readiness check (poll ingress port), lifecycle tests, startup logging.
-
-## 2.2.8
-
-- **Fix proxy startup** — added readiness check (poll ingress port, exit with clear error on failure) and lifecycle tests to prevent watchdog restart loops.
-- **Test coverage** — added integration-style lifecycle tests for the mobile proxy and structural tests for init, termservice, session, and build-image scripts.
+- **Fix proxy startup** — added readiness check and lifecycle tests.
 
 ## 2.2.7
 
@@ -58,6 +47,7 @@ All notable changes to this project will be documented in this file.
 
 - **Mobile device support** — added an async Python TCP proxy with iPad touch-probe detection (via `navigator.maxTouchPoints`), routing mobile clients to a tmux-free terminal with larger font while desktop clients keep tmux session persistence. Toggle via `mobile_proxy_enabled`.
 
+## 2.1.0
 ## 2.1.0
 
 - **PPQ private TEE models (beta)** — added an opt-in internal PPQ private-mode proxy, pinned at image build time, with a masked PPQ API key option and an OpenCode custom provider for PPQ private models. This feature ships in the stable add-on, but should still be considered beta while provider behavior and proxy integration are validated.
