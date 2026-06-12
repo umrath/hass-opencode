@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 
 - **OpenCode runtime update policy** — added a `latest`/`bundled` update policy. By default the add-on installs `opencode-ai@latest` into persistent add-on data and uses that before the bundled fallback, while `bundled` disables OpenCode self-update and uses the image version only. Baseline CPU mode now logs VM CPU passthrough guidance and the known upstream baseline OOM issue.
 
+## 2.2.3
+
+- **Performance: Chromium at runtime** — removed chromium (~1 GB) from the Docker image. Installed only at first start when `screenshot_enabled=true`. Saves ~1 GB download and ~3 min build time for all users.
+- **Decoupled image builds** — amd64 images build and publish immediately (~8 min); arm64 builds asynchronously via QEMU in the background. Releases are available for amd64 users without waiting for arm64.
+- **Node.js 22** — switched to Node.js 22 (nodesource) for opencode-ai compatibility. Debian Trixie ships Node 20, but opencode-ai@latest requires ≥22.
+
 ## 2.2.2
 
 - **Fix MCP server crash** — added `unhandledRejection` and `uncaughtException` handlers to prevent the MCP server process from exiting on transient HA API errors. This fixes the recurring "-32000: connection closed" error.
