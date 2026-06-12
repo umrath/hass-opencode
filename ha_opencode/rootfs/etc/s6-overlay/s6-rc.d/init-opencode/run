@@ -429,25 +429,8 @@ setup_opencode_runtime() {
             bashio::log.info "Persistent OpenCode version before update: ${runtime_version}"
         fi
 
-        bashio::log.info "Updating persistent OpenCode install: npm install -g opencode-ai@latest"
-        if timeout 300 npm install -g opencode-ai@latest --ignore-scripts --loglevel=error >/tmp/opencode-npm-install.log 2>&1; then
-            # Manually install platform binary (same workaround as Dockerfile — postinstall
-            # has musl/glibc detection issues with Node 22)
-            machine=$(uname -m)
-            case "${machine}" in
-                x86_64) PLATFORM_PKG="opencode-linux-x64@latest" ;;
-                aarch64|arm64) PLATFORM_PKG="opencode-linux-arm64@latest" ;;
-                *) PLATFORM_PKG="" ;;
-            esac
-            if [ -n "${PLATFORM_PKG}" ]; then
-                cd "${runtime_package}" && npm install "${PLATFORM_PKG}" --loglevel=error >>/tmp/opencode-npm-install.log 2>&1 || true
-            fi
-            runtime_version=$(opencode_package_version "${runtime_package}")
-            bashio::log.info "Persistent OpenCode version after update: ${runtime_version}"
-        else
-            bashio::log.warning "OpenCode runtime update failed; continuing with existing runtime install or bundled fallback"
-            bashio::log.warning "See /tmp/opencode-npm-install.log inside the container for npm details"
-        fi
+        bashio::log.info "Using bundled OpenCode (update policy: ${OPENCODE_UPDATE_POLICY})"
+        runtime_available=false
 
         if [ -x "${runtime_package}/bin/opencode.exe" ]; then
             select_opencode_package_binary "${runtime_package}" "${cpu_mode}" || true
