@@ -162,12 +162,7 @@ if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
         -t macOptionClickForcesSelection=true -t scrollback=5000 \
         -t "theme=${THEME_JSON}" \
         /usr/local/bin/opencode-session.sh &
-    MOBILE_PID=$!
-
-    sleep 2
-    export OC_PROXY_PORT=${INGRESS_PORT} OC_DESKTOP_PORT=${DESKTOP_PORT} OC_MOBILE_PORT=${MOBILE_PORT}
-    python3 /usr/share/oc-proxy/proxy.py &
-    PROXY_PID=$!
+        MOBILE_PID=$!
 
     # Wait for proxy to become ready — poll the ingress port.
     # If it fails to start within 15 seconds, tear down and exit.
