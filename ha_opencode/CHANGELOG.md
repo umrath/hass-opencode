@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.12
 
 - **Fix duplicate proxy startup** — removed duplicate `python3 proxy.py` call causing port 8099 conflict.
 - **Test: single proxy instance** — enforced to prevent recurrence.
