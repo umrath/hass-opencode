@@ -14,9 +14,8 @@ class TestProjectAssets(unittest.TestCase):
             "root README.md must exist")
 
     def test_license_file_exists(self):
-        # This project ships UNLICENSE (public domain).
-        self.assertTrue((REPO_ROOT / "UNLICENSE").exists(),
-            "UNLICENSE must exist at repo root")
+        self.assertTrue((REPO_ROOT / "LICENSE").exists(),
+            "LICENSE must exist at repo root")
 
     def test_each_addon_has_icon_and_logo(self):
         for addon in ADDONS:

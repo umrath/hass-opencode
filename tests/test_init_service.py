@@ -21,7 +21,7 @@ class TestInitService(unittest.TestCase):
         self.assertIn("#!/command/with-contenv bashio", self.text)
 
     def test_reads_config_options(self):
-        for opt in ("mcp_enabled", "lsp_enabled", "terminal_theme", "cpu_mode"):
+        for opt in ("mcp_enabled", "lsp_enabled", "cpu_mode", "opencode_update_policy"):
             self.assertIn(opt, self.text, f"missing config read for {opt}")
 
     def test_generates_opencode_json(self):
