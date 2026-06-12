@@ -1392,7 +1392,7 @@ function loadLocalDeprecationPatterns() {
  * GitHub URL for the latest deprecation patterns.
  * This allows pattern updates between app releases.
  */
-const GITHUB_PATTERNS_URL = "https://raw.githubusercontent.com/magnusoverli/opencode/main/ha_opencode/rootfs/opt/shared/deprecation-patterns.json";
+const GITHUB_PATTERNS_URL = "https://raw.githubusercontent.com/umrath/hass-opencode/main/ha_opencode/rootfs/opt/shared/deprecation-patterns.json";
 
 /**
  * HA Alerts JSON endpoint (public, no auth required).

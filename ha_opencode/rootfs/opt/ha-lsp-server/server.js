@@ -3,6 +3,13 @@
  * Home Assistant Language Server Protocol (LSP) Server
  * 
  * Provides intelligent editing features for Home Assistant YAML configuration files:
+
+process.on("unhandledRejection", (reason) => {
+  console.error("lsp-server unhandledRejection:", reason);
+});
+process.on("uncaughtException", (error) => {
+  console.error("lsp-server uncaughtException:", error);
+});
  * 
  * FEATURES:
  * - Entity ID autocomplete from live Home Assistant instance
@@ -59,7 +66,7 @@ const __lsp_dirname = dirname(__lsp_filename);
 // SHARED DEPRECATION PATTERNS (with remote update support)
 // ============================================================================
 
-const GITHUB_PATTERNS_URL = "https://raw.githubusercontent.com/magnusoverli/opencode/main/ha_opencode/rootfs/opt/shared/deprecation-patterns.json";
+const GITHUB_PATTERNS_URL = "https://raw.githubusercontent.com/umrath/hass-opencode/main/ha_opencode/rootfs/opt/shared/deprecation-patterns.json";
 
 /**
  * Load deprecation patterns from the local shared JSON file.

@@ -176,14 +176,14 @@ if [ "${MOBILE_PROXY_ENABLED}" = "true" ]; then
     done
     if [ "$READY" != "1" ]; then
         bashio::log.error "Proxy failed to start within 15s — exiting"
-        kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait
+    kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait 2>/dev/null || true
         exit 1
     fi
     bashio::log.info "Proxy ready on port ${INGRESS_PORT}"
 
     # Supervise: poll all three children. If any dies, tear down.
     # Avoids wait -n (which can return spuriously on signals).
-    trap 'kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait; exit 0' TERM INT
+    trap 'kill "$DESKTOP_PID" "$MOBILE_PID" "$PROXY_PID" 2>/dev/null; wait 2>/dev/null || true; exit 0' TERM INT
     while true; do
         if ! kill -0 "$DESKTOP_PID" 2>/dev/null; then
             bashio::log.error "Desktop ttyd (${DESKTOP_PID}) died"; break
