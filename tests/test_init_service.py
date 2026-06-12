@@ -34,8 +34,8 @@ class TestInitService(unittest.TestCase):
         self.assertIn("cpu_mode", self.text)
         self.assertIn("AVX2", self.text)
 
-    def test_installs_opencode_npm(self):
-        self.assertIn("npm install -g opencode-ai", self.text)
+    def test_uses_bundled_opencode(self):
+        self.assertIn("bundled OpenCode", self.text)
 
     def test_installs_chromium_at_runtime(self):
         self.assertIn("screenshot_enabled", self.text)
