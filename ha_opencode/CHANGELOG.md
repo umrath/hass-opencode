@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Remove watchdog:false** — may have been blocking HA Supervisor store display.
+
 ## 2.2.25
 
 - **Fix opencode CLI** — create `opencode.exe` symlink at build time so bundled binary works without runtime init.
