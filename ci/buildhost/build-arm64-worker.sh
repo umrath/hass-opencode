@@ -9,7 +9,7 @@ STATE_DIR="${CI_STATE_DIR:-/opt/ci/hass-opencode/state}"
 ARM_MARKER="$STATE_DIR/arm64-pending"
 ARM_RESULT="$STATE_DIR/arm64-results"
 LOCK="$STATE_DIR/arm64-worker.lock"
-REPO_ROOT=$(cd "$(dirname "$0")/../.." && pwd)
+REPO_ROOT="${CI_HOME:-/opt/ci/hass-opencode}/repo"
 
 REGISTRY=ghcr.io
 OWNER=umrath
