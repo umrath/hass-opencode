@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.18
 
 - **s6-only supervision** — removed Docker HEALTHCHECK and HA Supervisor watchdog. s6 is the sole process supervisor.
 - **Fix platform binary** — runtime npm install uses --ignore-scripts + manual binary install (same as Dockerfile).
