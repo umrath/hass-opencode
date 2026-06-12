@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Python terminal supervisor** — replaced fragile bash multi-process supervision (wait, kill -0, trap) with a clean Python supervisor. Single `exec python3` call, proper subprocess management.
+
 ## 2.2.12
 
 - **Fix duplicate proxy startup** — removed duplicate `python3 proxy.py` call causing port 8099 conflict.
