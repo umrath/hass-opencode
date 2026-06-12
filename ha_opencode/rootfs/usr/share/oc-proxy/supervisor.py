@@ -80,6 +80,20 @@ def main():
     signal.signal(signal.SIGTERM, handle_signal)
     signal.signal(signal.SIGINT, handle_signal)
 
+    # Start proxy FIRST — binds ingress port 8099 immediately.
+    # HA Supervisor checks the port right after container start.
+    # ttyd backends start afterwards; proxy retries connections.
+    print(f"[supervisor] starting proxy on 0.0.0.0:{PROXY_PORT}", flush=True)
+    proxy_proc = subprocess.Popen(
+        [sys.executable, PROXY_SCRIPT],
+        stdout=sys.stderr, stderr=sys.stderr,
+        env=os.environ,
+    )
+    children.append(proxy_proc)
+
+    # Brief wait for proxy to bind, then start ttyd backends
+    time.sleep(0.5)
+
     # Start desktop ttyd (tmux)
     desktop_cmd = f"cd /homeassistant && tmux new-session -A -s opencode {SESSION_SCRIPT}"
     start_ttyd("desktop", DESKTOP_PORT, FONT_SIZE, desktop_cmd)
@@ -87,20 +101,6 @@ def main():
     # Start mobile ttyd (no tmux)
     mobile_cmd = f"cd /homeassistant && {SESSION_SCRIPT}"
     start_ttyd("mobile", MOBILE_PORT, FONT_SIZE_MOBILE, mobile_cmd)
-
-    # Wait a moment for ttyd to bind, then start the proxy as foreground process
-    time.sleep(1)
-
-    print(f"[supervisor] starting proxy on 0.0.0.0:{PROXY_PORT}", flush=True)
-
-    # Proxy runs in foreground. When it exits, we exit too.
-    # Use subprocess.run instead of exec so we can still handle signals.
-    proxy_proc = subprocess.Popen(
-        [sys.executable, PROXY_SCRIPT],
-        stdout=sys.stderr, stderr=sys.stderr,
-        env=os.environ,
-    )
-    children.append(proxy_proc)
 
     # Monitor all children. If proxy dies first, tear down.
     # s6 handles SIGTERM via the signal handler above.

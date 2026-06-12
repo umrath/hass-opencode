@@ -73,5 +73,59 @@ class TestS6Structure(unittest.TestCase):
                     f"{d.name} depends on missing service {dep.name}")
 
 
+class TestNewTerminalServices(unittest.TestCase):
+    """Specific tests for the refactored three-service terminal architecture."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.proxy_run = S6_ROOT / "ha-opencode-proxy" / "run"
+        cls.desktop_run = S6_ROOT / "ha-opencode-desktop" / "run"
+        cls.mobile_run = S6_ROOT / "ha-opencode-mobile" / "run"
+        cls.ha_type = S6_ROOT / "ha-opencode" / "type"
+        cls.ha_contents = S6_ROOT / "ha-opencode" / "contents.d"
+
+    def test_ha_opencode_is_bundle(self):
+        self.assertEqual(self.ha_type.read_text().strip(), "bundle",
+            "ha-opencode must be a bundle type")
+
+    def test_ha_opencode_contents_correct(self):
+        expected = {"ha-opencode-proxy", "ha-opencode-desktop", "ha-opencode-mobile"}
+        actual = {e.name for e in self.ha_contents.iterdir()} if self.ha_contents.exists() else set()
+        self.assertEqual(actual, expected,
+            f"ha-opencode/contents.d must contain exactly {expected}")
+
+    def _read(self, path):
+        return path.read_text() if path.exists() else ""
+
+    def test_proxy_run_has_mobile_proxy_branch(self):
+        text = self._read(self.proxy_run)
+        self.assertIn("mobile_proxy_enabled", text)
+        self.assertIn("proxy.py", text)
+        self.assertIn("sleep infinity", text)
+
+    def test_desktop_run_has_ttyd_with_tmux(self):
+        text = self._read(self.desktop_run)
+        self.assertIn("mobile_proxy_enabled", text)
+        self.assertIn("ttyd", text)
+        self.assertIn("tmux", text)
+
+    def test_mobile_run_has_ttyd_no_tmux(self):
+        text = self._read(self.mobile_run)
+        self.assertIn("mobile_proxy_enabled", text)
+        self.assertIn("ttyd", text)
+        self.assertNotIn("tmux", text,
+            "mobile run must not use tmux")
+
+    def test_old_run_script_removed(self):
+        old_run = S6_ROOT / "ha-opencode" / "run"
+        self.assertFalse(old_run.exists(),
+            "old ha-opencode/run must be removed (replaced by bundle + sub-services)")
+
+    def test_old_finish_script_removed(self):
+        old_finish = S6_ROOT / "ha-opencode" / "finish"
+        self.assertFalse(old_finish.exists(),
+            "old ha-opencode/finish must be removed")
+
+
 if __name__ == "__main__":
     unittest.main()

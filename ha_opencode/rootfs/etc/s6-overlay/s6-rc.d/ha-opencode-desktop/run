@@ -1,0 +1,32 @@
+#!/command/with-contenv bashio
+export HOME="/data"
+export XDG_DATA_HOME="/data/.local/share"
+export XDG_CONFIG_HOME="/data/.config"
+if [ -f /data/.env_vars ]; then source /data/.env_vars; fi
+
+TERMINAL_THEME=$(bashio::config 'terminal_theme')
+FONT_SIZE=$(bashio::config 'font_size')
+CURSOR_STYLE=$(bashio::config 'cursor_style')
+CURSOR_BLINK=$(bashio::config 'cursor_blink')
+MOBILE_ENABLED=$(bashio::config 'mobile_proxy_enabled' || echo 'true')
+
+source /etc/profile.d/opencode-theme.sh
+THEME_JSON=$(get_theme "${TERMINAL_THEME}")
+
+if [ "${MOBILE_ENABLED}" = "true" ]; then
+    PORT=8098
+    SHELL_CMD="cd /homeassistant && tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh"
+else
+    PORT=8099
+    SHELL_CMD="cd /homeassistant && tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh"
+fi
+
+exec ttyd -W -p ${PORT} -i 127.0.0.1 -I /opt/ttyd/index.html \
+    -t fontSize="${FONT_SIZE}" \
+    -t fontWeight=normal -t fontWeightBold=bold \
+    -t letterSpacing=0 -t lineHeight=1.0 \
+    -t cursorBlink="${CURSOR_BLINK}" -t cursorStyle="${CURSOR_STYLE}" \
+    -t drawBoldTextInBrightColors=true -t minimumContrastRatio=4.5 \
+    -t macOptionClickForcesSelection=true -t scrollback=5000 \
+    -t "theme=${THEME_JSON}" \
+    bash -c "${SHELL_CMD}"

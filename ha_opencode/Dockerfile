@@ -34,13 +34,14 @@ COPY rootfs /
 
 RUN chmod +x /usr/local/bin/* \
     && chmod +x /etc/s6-overlay/s6-rc.d/init-opencode/run \
-    && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode/run \
+    && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-proxy/run \
+    && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-desktop/run \
+    && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-mobile/run \
     && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-server/run \
     && chmod +x /etc/s6-overlay/s6-rc.d/ppq-private-proxy/run \
     && chmod +x /etc/profile.d/hab-esphome.sh \
     && chmod +x /etc/profile.d/zigporter-z2m.sh \
     && chmod +x /usr/share/oc-proxy/proxy.py \
-    && chmod +x /usr/share/oc-proxy/supervisor.py \
     && mkdir -p /data/.local/share/opencode /data/.config/opencode
 
 RUN set -e; \
