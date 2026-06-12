@@ -46,4 +46,13 @@ else
   pass "## Unreleased has content — ready for release"
 fi
 
+# Check for duplicate version headings — a real regression that shipped multiple times.
+dupes=$(grep -oP '^## \d+\.\d+\.\d+' "$CHANGELOG" | sort | uniq -d)
+if [ -n "$dupes" ]; then
+  fail "Duplicate CHANGELOG headings found: $(echo "$dupes" | tr '\n' ' ')"
+  info "Remove duplicate '## X.Y.Z' headings from $CHANGELOG."
+else
+  pass "no duplicate CHANGELOG headings"
+fi
+
 finish_check; exit $?
