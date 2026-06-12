@@ -146,8 +146,6 @@ activate_version() {
   sed -i "s/^version: .*/version: \"$target\"/" "$REPO/ha_opencode/config.yaml"
   if grep -q '^## Unreleased' "$REPO/ha_opencode/CHANGELOG.md" 2>/dev/null; then
     sed -i "0,/^## Unreleased/s//## $target/" "$REPO/ha_opencode/CHANGELOG.md"
-  else
-    sed -i "2a## $target\n\n- _(auto-activated)_\n" "$REPO/ha_opencode/CHANGELOG.md"
   fi
   git -C "$REPO" -c user.name=ci -c user.email=ci@local \
     commit -qam "chore: activate $target (image built) [skip ci]" || return 0
