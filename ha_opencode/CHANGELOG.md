@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.16
 
 - **HEALTHCHECK always passes** — Docker health check no longer kills the container. HA Supervisor manages health independently.
 
