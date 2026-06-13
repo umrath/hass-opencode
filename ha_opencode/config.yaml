@@ -57,8 +57,9 @@ options:
   # CPU mode: auto (detect), baseline (for older CPUs), regular (force AVX2)
   cpu_mode: "auto"
 
-  # OpenCode update policy: latest (persistent runtime updates) or bundled (image version only)
-  opencode_update_policy: "latest"
+  # OpenCode update policy: bundled (image version only, deterministic boot) or
+  # latest (persistent runtime npm update at boot — needs network, heavier).
+  opencode_update_policy: "bundled"
 
   # Terminal appearance
   terminal_theme: "breeze"

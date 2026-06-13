@@ -64,6 +64,10 @@ profile ha_opencode flags=(attach_disconnected,mediate_deleted) {
   # Node global modules: opencode-ai, prettier, tsx, ppq-private-mode, and the
   # native .node/.so addons they dlopen.
   /usr/local/lib/node_modules/** ixmr,
+  # The boot CPU-binary selector swaps opencode.exe inside the opencode-ai
+  # package (rm/cp/chmod), so this subtree needs write+lock — without it the
+  # swap is DENIED and opencode resolves to "not-found".
+  /usr/local/lib/node_modules/opencode-ai/** rwk,
 
   # ── s6-overlay v3 init system ─────────────────────────────────────────────
   /init ixr,
