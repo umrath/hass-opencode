@@ -17,13 +17,23 @@ FROM ghcr.io/umrath/ha_opencode-base:latest@sha256:0851428f49b77c0dc74289a6c0e5a
 
 ARG BUILD_VERSION
 ARG BUILD_ARCH
+ARG TARGETARCH
 
-# The base image has the platform binary at opencode-ai/node_modules/opencode-linux-x64/bin/opencode
+# The base image ships the platform binary under opencode-ai/node_modules/<pkg>/bin/opencode
 # but the opencode CLI wrapper expects it at opencode-ai/bin/opencode.exe.
-# The init script normally creates this symlink at runtime, but with the bundled-only
-# policy it may not run. Create it at build time.
-RUN ln -sf node_modules/opencode-linux-x64/bin/opencode /usr/local/lib/node_modules/opencode-ai/bin/opencode.exe \
-    && chmod +x /usr/local/lib/node_modules/opencode-ai/node_modules/opencode-linux-x64/bin/opencode
+# The runtime init script selects the correct binary authoritatively; this is a
+# build-time default so the CLI works even before init runs (bundled policy).
+# The package name is arch-specific (x64 vs arm64), so derive it — never hard-fail
+# (init will fix it up at runtime if the build-time package is absent).
+RUN _A="${BUILD_ARCH:-$TARGETARCH}"; \
+    case "$_A" in aarch64|arm64) PKG=opencode-linux-arm64 ;; *) PKG=opencode-linux-x64 ;; esac; \
+    OAI=/usr/local/lib/node_modules/opencode-ai; \
+    if [ -x "$OAI/node_modules/$PKG/bin/opencode" ]; then \
+        ln -sf "node_modules/$PKG/bin/opencode" "$OAI/bin/opencode.exe" \
+        && chmod +x "$OAI/node_modules/$PKG/bin/opencode"; \
+    else \
+        echo "note: $PKG not present at build time; runtime init will select the binary"; \
+    fi
 
 # Copy hab CLI from builder stage
 COPY --from=hab-builder /hab /usr/local/bin/hab
