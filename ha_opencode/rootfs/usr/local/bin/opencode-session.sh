@@ -34,6 +34,16 @@ export HA_TOKEN="${HA_TOKEN:-$SUPERVISOR_TOKEN}"
 mkdir -p "${HOME}/.local/share/opencode"
 mkdir -p "${HOME}/.config/opencode"
 
+# OpenCode (Bun) extracts the native opentui renderer to $TMPDIR and maps it
+# executable. /tmp is mounted noexec (tmpfs: true), so that mmap is refused and
+# the TUI crashes at start-up ("An error occurred in Effect.tryPromise") while
+# `opencode run`/`serve` (no renderer) keep working. Point Bun at an
+# exec-capable dir on the persistent volume. Exported here so both the
+# auto-started TUI and the fallback login shell (where the user types
+# `opencode`) inherit it.
+export TMPDIR="/data/tmp"
+mkdir -p "${TMPDIR}"
+
 # KDE Breeze-style colors
 BLUE='\033[38;2;29;153;243m'
 GREEN='\033[38;2;17;209;22m'

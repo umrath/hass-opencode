@@ -18,6 +18,7 @@ SHELL_SCRIPTS = [
     # profile scripts
     "ha_opencode/rootfs/etc/profile.d/hab-esphome.sh",
     "ha_opencode/rootfs/etc/profile.d/opencode-theme.sh",
+    "ha_opencode/rootfs/etc/profile.d/opencode-tmpdir.sh",
     "ha_opencode/rootfs/etc/profile.d/zigporter-z2m.sh",
     # CLI tools
     "ha_opencode/rootfs/usr/local/bin/ha-logs",

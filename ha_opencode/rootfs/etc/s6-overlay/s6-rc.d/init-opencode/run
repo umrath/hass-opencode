@@ -52,6 +52,14 @@ fi
 mkdir -p /data/.local/share/opencode /data/.config/opencode "${NPM_CONFIG_PREFIX}"
 printf '%s\n' "${OPENCODE_UPDATE_POLICY}" > /data/.opencode_update_policy
 
+# Exec-capable temp dir for OpenCode/Bun. /tmp is mounted noexec (tmpfs: true),
+# which makes Bun's executable mmap of the extracted opentui renderer fail and
+# crashes the TUI. Bun is pointed here via TMPDIR in opencode-session.sh. Start
+# each boot clean so Bun's per-launch ~10 MB *.so temp files don't accumulate
+# on the persistent volume.
+rm -rf /data/tmp 2>/dev/null || true
+mkdir -p /data/tmp
+
 # ==============================================================================
 # Process user-defined environment variables
 # Reads env_vars from app config and writes a sourceable file at /data/.env_vars

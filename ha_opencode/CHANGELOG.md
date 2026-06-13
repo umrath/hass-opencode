@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## 2.2.30
 
+- **Fix OpenCode TUI crashing to a shell (`An error occurred in Effect.tryPromise`)** — the real cause: `/tmp` is mounted `noexec` (the add-on sets `tmpfs: true`), so when OpenCode/Bun extracted its native `opentui` terminal renderer (~10 MB `.so`) to `/tmp` and mapped it executable, the kernel refused it and the interactive terminal crashed at start-up. (`opencode run`/`serve` don't load the renderer, which is why they worked.) Bun is now pointed at an exec-capable `TMPDIR=/data/tmp` (set in the session launcher and a profile.d script; created and cleaned each boot). The terminal now opens normally.
+
+## Unreleased
+
 - **Fix OpenCode crashing to a shell (`An error occurred in Effect.tryPromise`)** — a project config left behind by old add-on versions at `/homeassistant/.opencode/opencode.json` (it pointed the MCP server at the long-removed `/usr/share/ha-mcp/server.py`) is rejected by current OpenCode and aborted start-up whenever the working directory was `/homeassistant`. The add-on no longer writes that file; on start-up it now detects the legacy marker, archives the file to a `.bak` alongside it, and lets the managed config take over. Upgraded installs that hit the crash are repaired automatically.
 
 ## 2.2.29
