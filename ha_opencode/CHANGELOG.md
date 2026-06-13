@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Fix OpenCode crashing to a shell (`An error occurred in Effect.tryPromise`)** — a project config left behind by old add-on versions at `/homeassistant/.opencode/opencode.json` (it pointed the MCP server at the long-removed `/usr/share/ha-mcp/server.py`) is rejected by current OpenCode and aborted start-up whenever the working directory was `/homeassistant`. The add-on no longer writes that file; on start-up it now detects the legacy marker, archives the file to a `.bak` alongside it, and lets the managed config take over. Upgraded installs that hit the crash are repaired automatically.
+
 ## 2.2.29
 
 - **Fix add-on stuck on `[exited]` (terminal reconnect loop)** — the real root cause was that `opencode-session.sh` was not executable, so every terminal session died instantly with `Permission denied`, ending the tmux session and making ttyd respawn in a tight loop. The script is now marked executable (in source and defensively in the image build). This affected all previous versions.

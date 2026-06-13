@@ -498,6 +498,28 @@ else
 fi
 
 # ==============================================================================
+# Migrate away an incompatible legacy project config
+# Old add-on versions wrote /homeassistant/.opencode/opencode.json that pointed
+# the MCP server at /usr/share/ha-mcp/server.py (python, removed long ago). That
+# file lives in the user's persistent config dir and survives upgrades. Current
+# OpenCode rejects its schema and aborts at start-up (generic "Effect.tryPromise"
+# error, terminal drops straight to the shell). The current add-on never writes
+# this file, so when we detect the legacy marker we archive it aside (never
+# destructive) and let the add-on's managed global config take over.
+# ==============================================================================
+LEGACY_PROJECT_CONFIG="/homeassistant/.opencode/opencode.json"
+if [ -f "${LEGACY_PROJECT_CONFIG}" ] && grep -q "/usr/share/ha-mcp" "${LEGACY_PROJECT_CONFIG}" 2>/dev/null; then
+    LEGACY_BACKUP="${LEGACY_PROJECT_CONFIG}.legacy-$(date +%Y%m%d%H%M%S).bak"
+    if mv "${LEGACY_PROJECT_CONFIG}" "${LEGACY_BACKUP}" 2>/dev/null; then
+        bashio::log.warning "Archived incompatible legacy project config -> ${LEGACY_BACKUP}"
+        bashio::log.warning "(It referenced the removed /usr/share/ha-mcp MCP server and crashed OpenCode start-up.)"
+        bashio::log.info "OpenCode now uses the add-on's managed config; restore any custom settings from the backup if needed."
+    else
+        bashio::log.error "Found incompatible legacy project config at ${LEGACY_PROJECT_CONFIG} but could not archive it"
+    fi
+fi
+
+# ==============================================================================
 # Deploy AGENTS.md to Home Assistant config directory
 # On first install: copy the full file
 # On update: if user hasn't customized it, refresh to get latest instructions
