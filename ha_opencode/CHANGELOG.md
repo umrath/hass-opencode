@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.30
 
 - **Fix OpenCode crashing to a shell (`An error occurred in Effect.tryPromise`)** — a project config left behind by old add-on versions at `/homeassistant/.opencode/opencode.json` (it pointed the MCP server at the long-removed `/usr/share/ha-mcp/server.py`) is rejected by current OpenCode and aborted start-up whenever the working directory was `/homeassistant`. The add-on no longer writes that file; on start-up it now detects the legacy marker, archives the file to a `.bak` alongside it, and lets the managed config take over. Upgraded installs that hit the crash are repaired automatically.
 
