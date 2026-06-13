@@ -22,7 +22,8 @@ ARG BUILD_ARCH
 # but the opencode CLI wrapper expects it at opencode-ai/bin/opencode.exe.
 # The init script normally creates this symlink at runtime, but with the bundled-only
 # policy it may not run. Create it at build time.
-RUN ln -sf node_modules/opencode-linux-x64/bin/opencode /usr/local/lib/node_modules/opencode-ai/bin/opencode.exe
+RUN ln -sf node_modules/opencode-linux-x64/bin/opencode /usr/local/lib/node_modules/opencode-ai/bin/opencode.exe \
+    && chmod +x /usr/local/lib/node_modules/opencode-ai/node_modules/opencode-linux-x64/bin/opencode
 
 # Copy hab CLI from builder stage
 COPY --from=hab-builder /hab /usr/local/bin/hab
