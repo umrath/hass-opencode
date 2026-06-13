@@ -73,77 +73,44 @@ class TestS6Structure(unittest.TestCase):
                     f"{d.name} depends on missing service {dep.name}")
 
 
-class TestNewTerminalServices(unittest.TestCase):
-    """Specific tests for the refactored three-service terminal architecture."""
+class TestTerminalService(unittest.TestCase):
+    """The terminal is a single ttyd longrun bound to the ingress port — no
+    proxy, no dual-instance, no bundle (that layer was removed as unreliable)."""
 
     @classmethod
     def setUpClass(cls):
-        cls.proxy_run = S6_ROOT / "ha-opencode-proxy" / "run"
-        cls.desktop_run = S6_ROOT / "ha-opencode-desktop" / "run"
-        cls.mobile_run = S6_ROOT / "ha-opencode-mobile" / "run"
-        cls.ha_type = S6_ROOT / "ha-opencode" / "type"
-        cls.ha_contents = S6_ROOT / "ha-opencode" / "contents.d"
+        cls.ha_dir = S6_ROOT / "ha-opencode"
+        cls.run_file = cls.ha_dir / "run"
+        cls.run_text = cls.run_file.read_text() if cls.run_file.exists() else ""
 
-    def test_ha_opencode_is_bundle(self):
-        self.assertEqual(self.ha_type.read_text().strip(), "bundle",
-            "ha-opencode must be a bundle type")
+    def test_ha_opencode_is_longrun(self):
+        self.assertEqual((self.ha_dir / "type").read_text().strip(), "longrun",
+            "ha-opencode must be a single longrun terminal service")
 
-    def test_ha_opencode_contents_correct(self):
-        expected = {"ha-opencode-proxy", "ha-opencode-desktop", "ha-opencode-mobile"}
-        actual = {e.name for e in self.ha_contents.iterdir()} if self.ha_contents.exists() else set()
-        self.assertEqual(actual, expected,
-            f"ha-opencode/contents.d must contain exactly {expected}")
+    def test_run_exists(self):
+        self.assertTrue(self.run_file.exists(), "ha-opencode/run must exist")
 
-    def _read(self, path):
-        return path.read_text() if path.exists() else ""
+    def test_run_binds_ingress_port_on_all_interfaces(self):
+        self.assertIn("-p 8099", self.run_text)
+        self.assertNotIn("-i 127.0.0.1", self.run_text,
+            "the ingress ttyd must bind 0.0.0.0 (no -i 127.0.0.1)")
 
-    def test_proxy_run_has_mobile_proxy_branch(self):
-        text = self._read(self.proxy_run)
-        self.assertIn("mobile_proxy_enabled", text)
-        self.assertIn("proxy.py", text)
-        self.assertIn("sleep infinity", text)
+    def test_run_uses_ttyd_and_tmux(self):
+        self.assertIn("ttyd", self.run_text)
+        self.assertIn("tmux", self.run_text)
+        self.assertIn("opencode-session.sh", self.run_text)
 
-    def test_desktop_run_has_ttyd_with_tmux(self):
-        text = self._read(self.desktop_run)
-        self.assertIn("mobile_proxy_enabled", text)
-        self.assertIn("ttyd", text)
-        self.assertIn("tmux", text)
-
-    def test_mobile_run_has_ttyd_no_tmux(self):
-        text = self._read(self.mobile_run)
-        self.assertIn("mobile_proxy_enabled", text)
-        self.assertIn("ttyd", text)
-        self.assertNotIn("tmux", text,
-            "mobile run must not use tmux")
-
-    def test_old_run_script_removed(self):
-        old_run = S6_ROOT / "ha-opencode" / "run"
-        self.assertFalse(old_run.exists(),
-            "old ha-opencode/run must be removed (replaced by bundle + sub-services)")
-
-    def test_old_finish_script_removed(self):
-        old_finish = S6_ROOT / "ha-opencode" / "finish"
-        self.assertFalse(old_finish.exists(),
-            "old ha-opencode/finish must be removed")
-
-    def test_proxy_has_no_init_dependency(self):
-        """Proxy must start immediately — no deps. HA Supervisor checks port 8099 at boot."""
-        deps = S6_ROOT / "ha-opencode-proxy" / "dependencies.d"
+    def test_run_depends_on_init(self):
+        deps = self.ha_dir / "dependencies.d"
         names = {d.name for d in deps.iterdir()} if deps.exists() else set()
-        self.assertNotIn("init-opencode", names,
-            "proxy must not depend on init-opencode (must bind before init runs)")
-
-    def test_desktop_depends_on_proxy_and_init(self):
-        deps = S6_ROOT / "ha-opencode-desktop" / "dependencies.d"
-        names = {d.name for d in deps.iterdir()} if deps.exists() else set()
-        self.assertIn("ha-opencode-proxy", names)
         self.assertIn("init-opencode", names)
 
-    def test_mobile_depends_on_proxy_and_init(self):
-        deps = S6_ROOT / "ha-opencode-mobile" / "dependencies.d"
-        names = {d.name for d in deps.iterdir()} if deps.exists() else set()
-        self.assertIn("ha-opencode-proxy", names)
-        self.assertIn("init-opencode", names)
+    def test_proxy_layer_removed(self):
+        for gone in ("ha-opencode-proxy", "ha-opencode-desktop", "ha-opencode-mobile"):
+            self.assertFalse((S6_ROOT / gone).exists(),
+                f"{gone} must be removed (single-ttyd terminal)")
+        self.assertFalse((self.ha_dir / "contents.d").exists(),
+            "ha-opencode must no longer be a bundle (no contents.d)")
 
 
 if __name__ == "__main__":

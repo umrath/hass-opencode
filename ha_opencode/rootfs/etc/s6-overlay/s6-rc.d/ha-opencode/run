@@ -1,0 +1,35 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# OpenCode terminal — a single ttyd bound to the ingress port.
+#
+# Deliberately simple: one ttyd on 0.0.0.0:8099 running the OpenCode session in
+# tmux (persistent across reconnects). No proxy, no dual-instance, no probe —
+# that mobile/desktop-switch layer was the source of repeated breakage. ttyd
+# serves every client directly, which is the proven, reliable HA-terminal setup.
+# ==============================================================================
+export HOME="/data"
+export XDG_DATA_HOME="/data/.local/share"
+export XDG_CONFIG_HOME="/data/.config"
+[ -f /data/.env_vars ] && source /data/.env_vars
+[ -f /data/.env_vars_discovered ] && source /data/.env_vars_discovered
+
+TERMINAL_THEME=$(bashio::config 'terminal_theme' || echo 'breeze')
+FONT_SIZE=$(bashio::config 'font_size' || echo '14')
+CURSOR_STYLE=$(bashio::config 'cursor_style' || echo 'block')
+CURSOR_BLINK=$(bashio::config 'cursor_blink' || echo 'false')
+
+source /etc/profile.d/opencode-theme.sh
+THEME_JSON=$(get_theme "${TERMINAL_THEME}")
+
+bashio::log.info "Starting OpenCode terminal on 0.0.0.0:8099 (single ttyd)"
+
+# No -i flag → ttyd binds 0.0.0.0 so Home Assistant ingress can reach it.
+exec ttyd -W -p 8099 -I /opt/ttyd/index.html \
+    -t fontSize="${FONT_SIZE}" \
+    -t fontWeight=normal -t fontWeightBold=bold \
+    -t letterSpacing=0 -t lineHeight=1.0 \
+    -t cursorBlink="${CURSOR_BLINK}" -t cursorStyle="${CURSOR_STYLE}" \
+    -t drawBoldTextInBrightColors=true -t minimumContrastRatio=4.5 \
+    -t macOptionClickForcesSelection=true -t scrollback=5000 \
+    -t "theme=${THEME_JSON}" \
+    bash -c "cd /homeassistant && tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh"

@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Fix add-on stuck on `[exited]` (terminal reconnect loop)** — the real root cause was that `opencode-session.sh` was not executable, so every terminal session died instantly with `Permission denied`, ending the tmux session and making ttyd respawn in a tight loop. The script is now marked executable (in source and defensively in the image build). This affected all previous versions.
+- **Simplify terminal to a single ttyd** — removed the mobile/desktop proxy + dual-ttyd + touch-probe layer (the mobile/desktop switch never worked reliably) in favour of one ttyd bound directly to the ingress port (`0.0.0.0:8099`) running the OpenCode session in tmux. This is the standard, proven HA web-terminal setup.
+
 ## 2.2.28
 
 - **Fix add-on failing to start (`[exited]`)** — the `init-opencode` one-shot can no longer take the whole container down: its s6 `up` now always reports success, so a transient boot-step failure degrades a feature instead of stopping the add-on.

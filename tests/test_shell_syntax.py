@@ -11,9 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 SHELL_SCRIPTS = [
     # s6 service scripts
-    "ha_opencode/rootfs/etc/s6-overlay/s6-rc.d/ha-opencode-desktop/run",
-    "ha_opencode/rootfs/etc/s6-overlay/s6-rc.d/ha-opencode-mobile/run",
-    "ha_opencode/rootfs/etc/s6-overlay/s6-rc.d/ha-opencode-proxy/run",
+    "ha_opencode/rootfs/etc/s6-overlay/s6-rc.d/ha-opencode/run",
     "ha_opencode/rootfs/etc/s6-overlay/s6-rc.d/ha-opencode-server/run",
     "ha_opencode/rootfs/etc/s6-overlay/s6-rc.d/init-opencode/run",
     "ha_opencode/rootfs/etc/s6-overlay/s6-rc.d/ppq-private-proxy/run",

@@ -40,15 +40,13 @@ RUN (cd /opt/ha-mcp-server && npm install --omit=dev) & \
 COPY rootfs /
 
 RUN chmod +x /usr/local/bin/hab /usr/local/bin/opencode /usr/local/bin/prettier 2>/dev/null || true \
+    && chmod +x /usr/local/bin/opencode-session.sh \
     && chmod +x /etc/s6-overlay/s6-rc.d/init-opencode/run \
-    && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-proxy/run \
-    && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-desktop/run \
-    && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-mobile/run \
+    && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode/run \
     && chmod +x /etc/s6-overlay/s6-rc.d/ha-opencode-server/run \
     && chmod +x /etc/s6-overlay/s6-rc.d/ppq-private-proxy/run \
     && chmod +x /etc/profile.d/hab-esphome.sh \
     && chmod +x /etc/profile.d/zigporter-z2m.sh \
-    && chmod +x /usr/share/oc-proxy/proxy.py \
     && mkdir -p /data/.local/share/opencode /data/.config/opencode
 
 RUN set -e; \
