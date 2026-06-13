@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.28
 
 - **Fix add-on failing to start (`[exited]`)** — the `init-opencode` one-shot can no longer take the whole container down: its s6 `up` now always reports success, so a transient boot-step failure degrades a feature instead of stopping the add-on.
 - **Fix OpenCode binary "not-found" under AppArmor** — the profile now allows the boot CPU-binary swap (`opencode.exe`) inside the `opencode-ai` package; previously AppArmor denied the `unlink`/`cp`, leaving a dangling binary.
