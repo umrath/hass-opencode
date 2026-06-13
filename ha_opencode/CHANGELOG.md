@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Fix opencode binary permissions** — chmod native opencode binary in Dockerfile.
+
 ## 2.2.26
 
 - **Remove watchdog:false** — may have been blocking HA Supervisor store display.
