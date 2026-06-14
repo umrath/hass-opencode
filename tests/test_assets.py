@@ -1,5 +1,6 @@
 """Tests for required app assets (icons, logos, docs)."""
 
+import json
 import unittest
 from pathlib import Path
 
@@ -16,6 +17,58 @@ class TestProjectAssets(unittest.TestCase):
     def test_license_file_exists(self):
         self.assertTrue((REPO_ROOT / "LICENSE").exists(),
             "LICENSE must exist at repo root")
+
+    def test_license_file_is_mit(self):
+        """LICENSE must contain MIT in the first 3 lines."""
+        license_path = REPO_ROOT / "LICENSE"
+        self.assertTrue(license_path.exists(), "LICENSE must exist")
+        head = license_path.read_text()
+        self.assertIn("MIT", head,
+            "LICENSE must be the MIT License")
+
+    def test_oci_labels_are_mit(self):
+        """build.yaml OCI labels must state MIT license."""
+        for addon in ADDONS:
+            path = REPO_ROOT / addon / "build.yaml"
+            if not path.exists():
+                continue
+            content = path.read_text()
+            self.assertIn('licenses: "MIT"', content,
+                f"{addon}/build.yaml OCI label must say MIT")
+
+    def test_package_json_licenses_are_mit(self):
+        """package.json files must say MIT."""
+        package_files = list(REPO_ROOT.rglob("opt/*/package.json"))
+        for p in package_files:
+            try:
+                data = json.loads(p.read_text())
+            except json.JSONDecodeError:
+                continue
+            lic = data.get("license", "")
+            self.assertEqual(lic, "MIT",
+                f"{p.relative_to(REPO_ROOT)} must have license: MIT, got: {lic}")
+
+    def test_docs_license_is_mit(self):
+        """DOCS.md license statement must say MIT, not Unlicense."""
+        for addon in ADDONS:
+            path = REPO_ROOT / addon / "DOCS.md"
+            if not path.exists():
+                continue
+            content = path.read_text()
+            self.assertNotIn("Unlicense", content,
+                f"{addon}/DOCS.md must not mention Unlicense")
+            self.assertIn("MIT", content,
+                f"{addon}/DOCS.md must mention MIT License")
+
+    def test_third_party_license_is_mit(self):
+        """THIRD-PARTY-LICENSES.md must reference MIT, not Unlicense."""
+        path = REPO_ROOT / "THIRD-PARTY-LICENSES.md"
+        self.assertTrue(path.exists(), "THIRD-PARTY-LICENSES.md must exist")
+        content = path.read_text()
+        self.assertNotIn("Unlicense", content,
+            "THIRD-PARTY-LICENSES.md must not mention Unlicense")
+        self.assertIn("MIT", content,
+            "THIRD-PARTY-LICENSES.md must reference MIT License")
 
     def test_each_addon_has_icon_and_logo(self):
         for addon in ADDONS:

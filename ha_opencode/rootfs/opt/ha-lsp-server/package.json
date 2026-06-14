@@ -30,5 +30,5 @@
     "yaml": "^2.4.5"
   },
   "author": "OpenCode App",
-  "license": "Unlicense"
+  "license": "MIT"
 }

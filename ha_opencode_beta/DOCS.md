@@ -86,3 +86,7 @@ If you encounter problems with the beta, please report them at:
 https://github.com/magnusoverli/opencode/issues
 
 Include the app logs (Settings > Add-ons > OpenCode Beta > Log) in your report.
+
+## License
+
+This app is released under the MIT License.

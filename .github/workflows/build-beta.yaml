@@ -84,7 +84,7 @@ jobs:
             org.opencontainers.image.description=Beta channel for OpenCode - AI coding agent for Home Assistant
             org.opencontainers.image.version=${{ steps.version.outputs.version }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.licenses=Unlicense
+            org.opencontainers.image.licenses=MIT
             io.hass.name=OpenCode Beta
 
   manifest:

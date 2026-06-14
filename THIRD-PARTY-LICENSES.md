@@ -2,7 +2,7 @@
 
 This project incorporates third-party software components, each with their
 own licensing terms. While the original code in this project is released
-into the public domain under the Unlicense, the following dependencies
+under the MIT License, the following dependencies
 retain their respective licenses.
 
 ## Runtime Dependencies

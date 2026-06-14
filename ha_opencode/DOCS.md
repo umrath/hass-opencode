@@ -1140,4 +1140,4 @@ After modifying configuration files, you may need to:
 
 ## License
 
-This app is released into the public domain under the Unlicense.
+This app is released under the MIT License.
