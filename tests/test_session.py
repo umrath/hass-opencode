@@ -30,6 +30,22 @@ class TestSessionScript(unittest.TestCase):
     def test_shows_banner(self):
         self.assertIn("show_banner", self.text)
 
+    def test_respects_update_policy_path(self):
+        """PATH override must be conditional on bundled policy."""
+        path_line = 'export PATH="/usr/local/bin'
+        lines = self.text.splitlines()
+        for i, line in enumerate(lines):
+            if path_line in line:
+                # The PATH export must be preceded by a conditional check
+                cond_found = False
+                for j in range(max(0, i - 3), i):
+                    if 'OPENCODE_UPDATE_POLICY' in lines[j] and 'bundled' in lines[j]:
+                        cond_found = True
+                        break
+                self.assertTrue(cond_found,
+                    f"PATH=/usr/local/bin export at line {i+1} must be guarded by "
+                    "if [ \"${OPENCODE_UPDATE_POLICY}\" = \"bundled\" ]")
+
     def test_drops_to_shell_after(self):
         self.assertIn("show_shell_help", self.text)
 

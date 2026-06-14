@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 - **Unify license to MIT** — All references updated from Unlicense to MIT across OCI labels, package.json, DOCS.md, THIRD-PARTY-LICENSES.md. Added regression tests for license consistency.
 - **Fix version shield in README** — Changed from GitHub release API badge to manual version badge that `update-version-shield.sh` can update. Script now handles `?style=for-the-badge` suffix. Added test to prevent future pattern drift.
+- **Fix `latest` update policy shadowed by bundled PATH** — `opencode-session.sh` now only overrides PATH with `/usr/local/bin` when policy is `bundled`. Previously the override always won, so the runtime-installed opencode at `/data/.npm-global/bin` was never used even with `latest` policy.
 
 ## 2.2.32
 

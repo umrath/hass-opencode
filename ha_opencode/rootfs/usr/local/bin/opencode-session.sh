@@ -68,10 +68,12 @@ fi
 # Change to Home Assistant config directory
 cd /homeassistant
 
-# Use bundled opencode binary from the Docker image. The runtime npm update
-# was removed because the postinstall has platform detection bugs with Node 22.
-# The bundled binary at /usr/local/bin/opencode is properly pre-installed.
-export PATH="/usr/local/bin:/usr/bin:/bin:${PATH}"
+# When update policy is "bundled", ensure the bundled binary at
+# /usr/local/bin/opencode takes precedence. When policy is "latest",
+# /data/.env_vars already placed /data/.npm-global/bin first — do not override.
+if [ "${OPENCODE_UPDATE_POLICY}" = "bundled" ]; then
+    export PATH="/usr/local/bin:/usr/bin:/bin:${PATH}"
+fi
 export OPENCODE_DISABLE_AUTOUPDATE=true
 
 # Configure git if not already configured
