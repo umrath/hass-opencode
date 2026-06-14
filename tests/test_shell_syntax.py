@@ -34,7 +34,18 @@ SHELL_SCRIPTS = [
     "ci/run.sh",
     "ci/lib.sh",
     # CI checks
+    "ci/checks/10-yaml.sh",
+    "ci/checks/20-config-sync.sh",
     "ci/checks/22-changelog-content.sh",
+    "ci/checks/25-unittests.sh",
+    "ci/checks/30-changelog.sh",
+    "ci/checks/40-shell-syntax.sh",
+    "ci/checks/50-shellcheck.sh",
+    "ci/checks/60-hadolint.sh",
+    "ci/checks/65-apparmor.sh",
+    "ci/checks/70-js-tests.sh",
+    # git hooks
+    "hooks/pre-commit",
     # scripts
     "scripts/setup-git-hooks.sh",
     "scripts/update-version-shield.sh",
