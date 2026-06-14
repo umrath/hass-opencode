@@ -103,5 +103,31 @@ class TestClipboardJs(unittest.TestCase):
         self.assertIn("clipboard", self.text.lower())
 
 
+class TestTouchScrollJs(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.path = ROOT / "ha_opencode" / "rootfs" / "opt" / "ttyd" / "touch-scroll.js"
+        cls.text = cls.path.read_text() if cls.path.exists() else ""
+
+    def test_exists(self):
+        self.assertTrue(self.path.exists())
+
+    def test_valid_js_syntax(self):
+        result = subprocess.run(["node", "-c", str(self.path)],
+                                capture_output=True)
+        self.assertEqual(result.returncode, 0,
+            f"JS syntax error:\n{result.stderr.decode()}")
+
+    def test_inlines_safely(self):
+        # injected inline into ttyd's index page, so it must not break out of
+        # the <script> wrapper (same constraint inject-clipboard.py enforces).
+        self.assertNotIn("</script>", self.text)
+
+    def test_touch_only(self):
+        # must be a no-op on non-touch pointers so desktop is unaffected
+        self.assertIn("touchstart", self.text)
+        self.assertIn("maxTouchPoints", self.text)
+
+
 if __name__ == "__main__":
     unittest.main()

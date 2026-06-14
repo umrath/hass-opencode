@@ -69,8 +69,9 @@ RUN set -e; \
     done; \
     kill "$TTYD_PID"; \
     [ "$ok" = "1" ]; \
-    python3 /opt/ttyd/inject-clipboard.py /tmp/ttyd-index.html /opt/ttyd/clipboard.js /opt/ttyd/index.html; \
-    rm -f /tmp/ttyd-index.html
+    python3 /opt/ttyd/inject-clipboard.py /tmp/ttyd-index.html /opt/ttyd/clipboard.js /tmp/ttyd-index.2.html; \
+    python3 /opt/ttyd/inject-clipboard.py /tmp/ttyd-index.2.html /opt/ttyd/touch-scroll.js /opt/ttyd/index.html; \
+    rm -f /tmp/ttyd-index.html /tmp/ttyd-index.2.html
 
 WORKDIR /homeassistant
 
