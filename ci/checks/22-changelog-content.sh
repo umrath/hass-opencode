@@ -47,7 +47,7 @@ else
 fi
 
 # Check for duplicate version headings — a real regression that shipped multiple times.
-dupes=$(grep -oP '^## \d+\.\d+\.\d+' "$CHANGELOG" | sort | uniq -d)
+dupes=$(grep -oE '^## [0-9]+\.[0-9]+\.[0-9]+' "$CHANGELOG" | sort | uniq -d)
 if [ -n "$dupes" ]; then
   fail "Duplicate CHANGELOG headings found: $(echo "$dupes" | tr '\n' ' ')"
   info "Remove duplicate '## X.Y.Z' headings from $CHANGELOG."
