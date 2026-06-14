@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - **Fix `latest` update policy shadowed by bundled PATH** — `opencode-session.sh` now only overrides PATH with `/usr/local/bin` when policy is `bundled`. Previously the override always won, so the runtime-installed opencode at `/data/.npm-global/bin` was never used even with `latest` policy.
 - **Correct DOCS.md default for update policy** — DOCS.md now states `bundled` as the default (matching config.yaml). Added test to detect config/docs default drift for both stable and beta addons.
 - **Remove dead `mobile_proxy_enabled` option** — The option, schema, and translation were still present but no service reads it (the mobile proxy was removed in 2.2.29). Cleanup reduces config clutter.
+- **Harden Chromium runtime install** — Added 10-minute timeout and graceful fallback (disables screenshots for the boot instead of hanging indefinitely). Previously the apt-get install had no timeout and could block init-opencode forever on slow networks.
 
 ## 2.2.32
 

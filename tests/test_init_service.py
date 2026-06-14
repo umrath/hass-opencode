@@ -40,6 +40,11 @@ class TestInitService(unittest.TestCase):
     def test_installs_chromium_at_runtime(self):
         self.assertIn("screenshot_enabled", self.text)
         self.assertIn("chromium", self.text)
+        # Timeout protection and fallback
+        self.assertIn("timeout", self.text,
+            "chromium install must have timeout protection")
+        self.assertIn("SCREENSHOT_ENABLED=false", self.text,
+            "screenshot must fall back to disabled on install failure")
 
     def test_checks_hab_and_zigporter(self):
         self.assertIn("hab", self.text)

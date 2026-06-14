@@ -259,11 +259,22 @@ bashio::log.info "zigporter credentials configured (HA via Supervisor proxy)"
 if [ "${SCREENSHOT_ENABLED}" = "true" ]; then
     if ! command -v chromium >/dev/null 2>&1; then
         bashio::log.info "Screenshot enabled — installing chromium (~1 GB, one-time)"
-        apt-get update -qq && apt-get install -y --no-install-recommends chromium && rm -rf /var/lib/apt/lists/*
+        if timeout 600 apt-get update -qq 2>/tmp/chromium_install.log \
+            && timeout 600 apt-get install -y --no-install-recommends chromium 2>>/tmp/chromium_install.log; then
+            rm -rf /var/lib/apt/lists/*
+            bashio::log.info "Chromium installed successfully"
+        else
+            bashio::log.warning "Chromium install timed out or failed (see /tmp/chromium_install.log)"
+            bashio::log.warning "Screenshot tools will not be available this boot"
+            SCREENSHOT_ENABLED=false
+        fi
+        rm -f /tmp/chromium_install.log
     fi
-    printf 'export SCREENSHOT_ENABLED=true\n' >> "${ENV_VARS_FILE}"
-    chmod 600 "${ENV_VARS_FILE}"
-    bashio::log.info "Screenshot tool enabled (Chromium headless for visual verification)"
+    if [ "${SCREENSHOT_ENABLED}" = "true" ]; then
+        printf 'export SCREENSHOT_ENABLED=true\n' >> "${ENV_VARS_FILE}"
+        chmod 600 "${ENV_VARS_FILE}"
+        bashio::log.info "Screenshot tool enabled (Chromium headless for visual verification)"
+    fi
 else
     bashio::log.info "Screenshot tool disabled (enable in Configuration tab to use visual verification)"
 fi
