@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - **Correct DOCS.md default for update policy** — DOCS.md now states `bundled` as the default (matching config.yaml). Added test to detect config/docs default drift for both stable and beta addons.
 - **Remove dead `mobile_proxy_enabled` option** — The option, schema, and translation were still present but no service reads it (the mobile proxy was removed in 2.2.29). Cleanup reduces config clutter.
 - **Harden Chromium runtime install** — Added 10-minute timeout and graceful fallback (disables screenshots for the boot instead of hanging indefinitely). Previously the apt-get install had no timeout and could block init-opencode forever on slow networks.
+- **Update beta addon manifest** — Bumped version from 2.1.1b0 to 2.2.32b0, added missing `tmpfs: true`, updated image/URL references from magnusoverli to umrath.
 
 ## 2.2.32
 
