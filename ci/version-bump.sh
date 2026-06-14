@@ -28,4 +28,7 @@ fi
 
 git add "$CONFIG" "$CHANGELOG"
 git commit -m "chore: bump version to $new [skip ci]" || true
-git push origin main || true
+if ! git push origin main; then
+    echo "FATAL: git push failed — version bump committed locally but not pushed to remote."
+    exit 1
+fi
