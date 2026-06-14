@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.32
 
 - **Mobile/touch scrolling in the terminal** — OpenCode runs as a full-screen TUI with mouse reporting on, so on phones and tablets a touch drag did nothing and the view was stuck. A small script (injected into ttyd's page like the clipboard glue) now translates a one-finger vertical drag into mouse-wheel events at the touch point, so OpenCode scrolls via the same path the desktop wheel already uses. No-op on desktop; tmux session persistence is unaffected (no proxy/dual-terminal reintroduced).
 
