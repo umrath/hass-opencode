@@ -32,5 +32,5 @@ fi
 bashio::log.info "Starting PPQ private-mode proxy on 127.0.0.1:${PORT}"
 bashio::log.info "The PPQ proxy is internal-only and is not exposed through Home Assistant networking."
 
-PPQ_PROXY_ENTRYPOINT="$(npm root -g)/ppq-private-mode/bin/server.ts"
+PPQ_PROXY_ENTRYPOINT="/usr/local/lib/node_modules/ppq-private-mode/bin/server.ts"
 exec tsx "${PPQ_PROXY_ENTRYPOINT}"
