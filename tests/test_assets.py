@@ -103,6 +103,20 @@ class TestProjectAssets(unittest.TestCase):
             "README.md version-shield must match the pattern update-version-shield.sh expects "
             "(e.g. ...img.shields.io/badge/version-vX.Y.Z-blue.svg)")
 
+    def test_readme_references_umrath(self):
+        """README must reference umrath/hass-opencode, not magnusoverli/opencode (except author credit)."""
+        readme = REPO_ROOT / "README.md"
+        self.assertTrue(readme.exists(), "README.md must exist")
+        content = readme.read_text()
+        # The author block legitimately credits Magnus Overli
+        author_credit = 'magnusoverli'
+        count = content.count(author_credit)
+        # Author block: 2 references (avatar + link) is fine
+        self.assertLessEqual(count, 2,
+            f"README.md has {count} 'magnusoverli' references — should only appear in author credit")
+        self.assertIn('umrath/hass-opencode', content,
+            "README.md must reference umrath/hass-opencode")
+
     def test_stable_addon_has_readme(self):
         self.assertTrue((REPO_ROOT / "ha_opencode" / "README.md").exists()
                         or (REPO_ROOT / "README.md").exists(),

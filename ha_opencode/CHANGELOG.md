@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - **Remove dead `mobile_proxy_enabled` option** — The option, schema, and translation were still present but no service reads it (the mobile proxy was removed in 2.2.29). Cleanup reduces config clutter.
 - **Harden Chromium runtime install** — Added 10-minute timeout and graceful fallback (disables screenshots for the boot instead of hanging indefinitely). Previously the apt-get install had no timeout and could block init-opencode forever on slow networks.
 - **Update beta addon manifest** — Bumped version from 2.1.1b0 to 2.2.32b0, added missing `tmpfs: true`, updated image/URL references from magnusoverli to umrath.
+- **Consolidate registry/URL references** — Replaced remaining `magnusoverli/opencode` references with `umrath/hass-opencode` in README.md, build.yaml, DOCS.md (both addons), and GH Actions workflows. Added test to prevent regression.
 
 ## 2.2.32
 

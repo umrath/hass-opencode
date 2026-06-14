@@ -83,7 +83,7 @@ Bundled model IDs come from the pinned `ppq-private-mode` package version: `priv
 ## Reporting Issues
 
 If you encounter problems with the beta, please report them at:
-https://github.com/magnusoverli/opencode/issues
+https://github.com/umrath/hass-opencode/issues
 
 Include the app logs (Settings > Add-ons > OpenCode Beta > Log) in your report.
 

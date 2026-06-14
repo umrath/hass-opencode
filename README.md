@@ -120,7 +120,7 @@ Simply run `/connect` and select **OpenCode Zen** to get started for free.
    
    Go to **Settings** → **Add-ons** → **Add-on Store** → **⋮** → **Repositories**
    
-   Add: `https://github.com/magnusoverli/opencode`
+   Add: `https://github.com/umrath/hass-opencode`
    </details>
 
 2. **Install the app:**
@@ -270,7 +270,7 @@ Contributions of all kinds are welcome — feel free to open a PR!
 
 ### All Contributors
 
-See the [contributors page](https://github.com/magnusoverli/opencode/graphs/contributors) for the full list of amazing people who have helped make this project better!
+See the [contributors page](https://github.com/umrath/hass-opencode/graphs/contributors) for the full list of amazing people who have helped make this project better!
 
 </td>
 </tr>
@@ -297,18 +297,18 @@ Licensed under the MIT License - see [LICENSE](LICENSE) for details.
 <!-- Links -->
 [docs]: ./ha_opencode/DOCS.md
 [changelog]: ./ha_opencode/CHANGELOG.md
-[issues]: https://github.com/magnusoverli/opencode/issues
+[issues]: https://github.com/umrath/hass-opencode/issues
 [license]: LICENSE
-[github]: https://github.com/magnusoverli/opencode
-[repo-add]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fmagnusoverli%2Fopencode
+[github]: https://github.com/umrath/hass-opencode
+[repo-add]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fumrath%2Fhass-opencode
 [repo-btn]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
 
 <!-- Badges -->
 [version-shield]: https://img.shields.io/badge/version-v2.2.32-blue.svg?style=for-the-badge
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-experimental-orange.svg?style=for-the-badge
-[license-shield]: https://img.shields.io/github/license/magnusoverli/opencode.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/umrath/hass-opencode.svg?style=for-the-badge
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2026.svg?style=for-the-badge
-[stable-build-shield]: https://img.shields.io/github/actions/workflow/status/magnusoverli/opencode/build.yaml?style=for-the-badge&label=stable%20build
-[beta-build-shield]: https://img.shields.io/github/actions/workflow/status/magnusoverli/opencode/build-beta.yaml?style=for-the-badge&label=beta%20build
-[stable-build-workflow]: https://github.com/magnusoverli/opencode/actions/workflows/build.yaml
-[beta-build-workflow]: https://github.com/magnusoverli/opencode/actions/workflows/build-beta.yaml
+[stable-build-shield]: https://img.shields.io/github/actions/workflow/status/umrath/hass-opencode/build.yaml?style=for-the-badge&label=stable%20build
+[beta-build-shield]: https://img.shields.io/github/actions/workflow/status/umrath/hass-opencode/build-beta.yaml?style=for-the-badge&label=beta%20build
+[stable-build-workflow]: https://github.com/umrath/hass-opencode/actions/workflows/build.yaml
+[beta-build-workflow]: https://github.com/umrath/hass-opencode/actions/workflows/build-beta.yaml

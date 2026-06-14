@@ -41,7 +41,7 @@ jobs:
           # Set the release version (dev's config.yaml may show the previous
           # beta version since the version bump happens here, not on dev)
           sed -i "s/^version: .*/version: \"${VERSION}\"/" ha_opencode_beta/config.yaml
-          sed -i 's|^image: .*|image: "ghcr.io/magnusoverli/ha_opencode_beta"|' ha_opencode_beta/config.yaml
+          sed -i 's|^image: .*|image: "ghcr.io/umrath/ha_opencode_beta"|' ha_opencode_beta/config.yaml
           grep "version:" ha_opencode_beta/config.yaml
           grep "image:" ha_opencode_beta/config.yaml
 
