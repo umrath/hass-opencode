@@ -175,6 +175,22 @@ class TestStableConfig(_CommonConfigInvariants, unittest.TestCase):
         self.assertTrue(opts["lsp_enabled"])
         self.assertEqual(opts["font_size"], 14)
 
+    def test_opencode_update_policy_default(self):
+        policy = self.cfg.get("options", {}).get("opencode_update_policy")
+        self.assertIsNotNone(policy, "opencode_update_policy option is required")
+        docs_path = REPO_ROOT / self.PATH / "DOCS.md"
+        if not docs_path.exists():
+            return
+        docs_text = docs_path.read_text()
+        # Normalise: strip formatting, collapse whitespace
+        flat = " ".join(
+            docs_text.replace("**", "").replace("`", "").replace("\n", " ").split()
+        )
+        pat = r"\bdefault\b.*\b" + re.escape(policy) + r"\b"
+        self.assertTrue(re.search(pat, flat),
+            f"{self.PATH}/DOCS.md 'default' must refer to '{policy}', "
+            f"not the other policy value")
+
     def test_beta_only_options_absent(self):
         # Sanity that stable doesn't accidentally inherit a beta-flagged toggle.
         self.assertIn("mobile_proxy_enabled", self.cfg["options"])

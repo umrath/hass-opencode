@@ -43,7 +43,7 @@ Configure the app from the **Configuration** tab in the app page.
 | Option | Default | Description |
 |--------|---------|-------------|
 | **CPU Mode** | `auto` | Controls which OpenCode binary is used. `auto` detects your CPU capabilities automatically (recommended). `baseline` forces the baseline binary for older CPUs without AVX2 support. `regular` forces the standard binary. |
-| **OpenCode Update Policy** | `latest` | Controls how OpenCode itself is updated. `latest` installs and updates OpenCode in persistent app data so it can follow upstream releases independently of app releases. `bundled` uses only the OpenCode version included in the app image and disables OpenCode self-update. |
+| **OpenCode Update Policy** | `bundled` | Controls how OpenCode itself is updated. `bundled` uses the OpenCode version included in the app image and avoids persistent installs (recommended default for stability). `latest` installs and updates OpenCode in persistent app data so it can follow upstream releases independently of app releases. |
 | **PPQ API Key** | `""` | API key for PPQ private-mode models. Stored as a masked app option and exported only to the internal PPQ proxy service. Only needed for the beta PPQ feature. |
 | **Enable App Folder Guidance** | `false` | Shows terminal guidance for Home Assistant app development folders. The app mounts `/addons` and `/addon_configs` for development access; `/addon_configs` may contain sensitive app data. This option updates guidance after restart, but it is not a hard filesystem permission boundary. |
 | **Zigbee2MQTT URL** | `""` | Optional URL for Zigbee2MQTT, used by zigporter commands such as `list-z2m` and `network-map --backend z2m`. Include `http://` or `https://`, for example `http://homeassistant.local:8099`. Host/IP-only values are treated as `http://`. |
@@ -58,11 +58,9 @@ OpenCode snapshots are disabled by default in this app to reduce memory and disk
 
 ### OpenCode Updates
 
-By default, **OpenCode Update Policy** is set to `latest`. On startup, the app installs or updates `opencode-ai@latest` into `/data/.npm-global` and puts that persistent install first in `PATH`. OpenCode's own patch-level self-update also uses this persistent npm prefix, so upstream OpenCode updates can survive app restarts without requiring a new app release.
+By default, **OpenCode Update Policy** is set to `bundled`. The app uses the OpenCode version included in the app image and disables OpenCode self-update. This is the recommended setting for stability — the bundled version is tested with the app release.
 
-The app image still includes a bundled OpenCode copy as a fallback. If the startup update fails, the app logs a warning and continues with the existing persistent install or the bundled version.
-
-Set **OpenCode Update Policy** to `bundled` to use only the OpenCode version included in the app image. This also disables OpenCode self-update and ignores any persistent OpenCode install under `/data/.npm-global`.
+Set **OpenCode Update Policy** to `latest` to install and update OpenCode in persistent app data (`/data/.npm-global`) on startup. This allows OpenCode to follow upstream releases independently of app releases. The bundled copy in the image serves as a fallback if the startup update fails.
 
 For x64 systems without visible AVX2 support, OpenCode selects its baseline binary. If this app runs in a VM on an AVX2-capable host, enable host CPU passthrough; generic QEMU/KVM CPU models can hide AVX2 and force the baseline binary unnecessarily. There is a known upstream baseline OOM issue tracked at `anomalyco/opencode#20988`.
 
