@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - **Fix version shield in README** — Changed from GitHub release API badge to manual version badge that `update-version-shield.sh` can update. Script now handles `?style=for-the-badge` suffix. Added test to prevent future pattern drift.
 - **Fix `latest` update policy shadowed by bundled PATH** — `opencode-session.sh` now only overrides PATH with `/usr/local/bin` when policy is `bundled`. Previously the override always won, so the runtime-installed opencode at `/data/.npm-global/bin` was never used even with `latest` policy.
 - **Correct DOCS.md default for update policy** — DOCS.md now states `bundled` as the default (matching config.yaml). Added test to detect config/docs default drift for both stable and beta addons.
+- **Remove dead `mobile_proxy_enabled` option** — The option, schema, and translation were still present but no service reads it (the mobile proxy was removed in 2.2.29). Cleanup reduces config clutter.
 
 ## 2.2.32
 

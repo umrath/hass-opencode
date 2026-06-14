@@ -191,10 +191,6 @@ class TestStableConfig(_CommonConfigInvariants, unittest.TestCase):
             f"{self.PATH}/DOCS.md 'default' must refer to '{policy}', "
             f"not the other policy value")
 
-    def test_beta_only_options_absent(self):
-        # Sanity that stable doesn't accidentally inherit a beta-flagged toggle.
-        self.assertIn("mobile_proxy_enabled", self.cfg["options"])
-
     def test_secret_defaults_empty(self):
         self.assertEqual(self.cfg["options"]["ppq_api_key"], "")
         self.assertEqual(self.cfg["options"]["access_token"], "")
