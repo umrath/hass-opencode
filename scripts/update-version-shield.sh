@@ -19,12 +19,11 @@ fi
 echo "Found version: $VERSION"
 
 # Update version shield in README.md
+SHIELD_URL="[version-shield]: https://img.shields.io/badge/version-v${VERSION}-blue.svg?style=for-the-badge"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    sed -i '' "s|\[version-shield\]: https://img.shields.io/badge/version-v[0-9.]*-blue.svg|[version-shield]: https://img.shields.io/badge/version-v${VERSION}-blue.svg|" "$README_FILE"
+    sed -i '' "s|\[version-shield\]: https://img.shields.io/badge/version-v[0-9.]*-blue.svg[^[:space:]]*|${SHIELD_URL}|" "$README_FILE"
 else
-    # Linux
-    sed -i "s|\[version-shield\]: https://img.shields.io/badge/version-v[0-9.]*-blue.svg|[version-shield]: https://img.shields.io/badge/version-v${VERSION}-blue.svg|" "$README_FILE"
+    sed -i "s|\[version-shield\]: https://img.shields.io/badge/version-v[0-9.]*-blue.svg[^[:space:]]*|${SHIELD_URL}|" "$README_FILE"
 fi
 
 echo "Updated version shield in README.md to v${VERSION}"

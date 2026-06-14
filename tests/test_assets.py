@@ -1,6 +1,7 @@
 """Tests for required app assets (icons, logos, docs)."""
 
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -89,6 +90,18 @@ class TestProjectAssets(unittest.TestCase):
             for doc in ("DOCS.md", "CHANGELOG.md"):
                 path = REPO_ROOT / addon / doc
                 self.assertTrue(path.exists(), f"{addon}/{doc} must exist")
+
+    def test_version_shield_updatable(self):
+        """README version shield must use a pattern update-version-shield.sh can match."""
+        readme = REPO_ROOT / "README.md"
+        self.assertTrue(readme.exists(), "README.md must exist")
+        content = readme.read_text()
+        shield_pat = re.compile(
+            r'\[version-shield\]: https://img\.shields\.io/badge/version-v[\d.]+-blue\.svg'
+        )
+        self.assertTrue(shield_pat.search(content),
+            "README.md version-shield must match the pattern update-version-shield.sh expects "
+            "(e.g. ...img.shields.io/badge/version-vX.Y.Z-blue.svg)")
 
     def test_stable_addon_has_readme(self):
         self.assertTrue((REPO_ROOT / "ha_opencode" / "README.md").exists()
