@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.44
 
 - **Extract ESPHome helpers** — `discoverESPHome`, `getESPHomeConnection`, `createIngressSessionViaWebSocket`, `streamESPHomeLogs`, `getESPHomeDevices` → `lib/esphome.js`. index.js: 4054 → 3620 lines.
 
