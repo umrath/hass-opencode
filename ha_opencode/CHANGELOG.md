@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.45
 
 - **Extract state cache + entity helpers** — `getCachedStates`, `invalidateStatesCache`, `getEntityRelationships` → `lib/states.js`. index.js: 3620 → 3550 lines.
 
