@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.46
 
 - **Extract documentation helpers** — `fetchUrl`, `getCachedDoc`, `setCachedDoc` → `lib/docs.js`. index.js: 3550 → 3511 lines.
 
