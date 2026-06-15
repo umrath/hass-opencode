@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Extract state cache + entity helpers** — `getCachedStates`, `invalidateStatesCache`, `getEntityRelationships` → `lib/states.js`. index.js: 3620 → 3550 lines.
+
 ## 2.2.44
 
 - **Extract ESPHome helpers** — `discoverESPHome`, `getESPHomeConnection`, `createIngressSessionViaWebSocket`, `streamESPHomeLogs`, `getESPHomeDevices` → `lib/esphome.js`. index.js: 4054 → 3620 lines.
