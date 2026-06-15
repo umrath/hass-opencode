@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- **Centralize registry/repo configuration** — `REGISTRY`/`OWNER`/`IMAGE` now sourced from `/etc/default/hass-opencode-ci` (with fallback defaults) in all build-host scripts. `BASE_DIGEST` regex built dynamically from variables. `install.sh` gains idempotent key seeding for new config entries.
+
 - **Screenshot/Chromium works under the hardened AppArmor profile** — Chromium is now baked into the base image at build time (both arches) instead of being apt-installed at runtime, which the read-only-`/usr` AppArmor profile blocked. The profile gains a narrow set of Chromium-runtime allowances (own-process `/proc` tuning, font cache, `/var/tmp`, `ptrace` for crash handling) — **no `/usr` write and no extra Linux capabilities**. Verified on the build host: headless Chromium produces screenshots under the enforced profile with zero denials. Note: the image is ~1 GB larger as a result, whether or not screenshots are enabled.
 
 ## 2.2.35

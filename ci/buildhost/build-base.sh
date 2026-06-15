@@ -4,11 +4,13 @@
 # `FROM ghcr.io/umrath/ha_opencode-base:latest`.
 set -euo pipefail
 
+[ -f /etc/default/hass-opencode-ci ] && . /etc/default/hass-opencode-ci
+
 export DOCKER_CONFIG="${CI_DOCKER_CONFIG:-/root/.docker}"
 BUILDER="${CI_BUILDX_BUILDER:-ci-multiarch}"
-REGISTRY=ghcr.io
-OWNER=umrath
-IMAGE=ha_opencode-base
+REGISTRY="${CI_REGISTRY:-ghcr.io}"
+OWNER="${CI_OWNER:-umrath}"
+IMAGE="${CI_BASE_IMAGE:-ha_opencode-base}"
 REF="$REGISTRY/$OWNER/$IMAGE"
 REPO_ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 

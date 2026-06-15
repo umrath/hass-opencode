@@ -18,6 +18,9 @@
 # Usage: build-image.sh <version>
 set -euo pipefail
 
+# Source registry/repo overrides from the central env file (fall back to defaults).
+[ -f /etc/default/hass-opencode-ci ] && . /etc/default/hass-opencode-ci
+
 VERSION="${1:?usage: build-image.sh <version>}"
 REPO_ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 
@@ -26,9 +29,10 @@ BUILDER="${CI_BUILDX_BUILDER:-ci-multiarch}"
 EXTRA_TAGS="${CI_IMAGE_TAGS:-latest}"
 STATE_DIR="${CI_STATE_DIR:-/opt/ci/hass-opencode/state}"
 
-REGISTRY=ghcr.io
-OWNER=umrath
-IMAGE=ha_opencode
+REGISTRY="${CI_REGISTRY:-ghcr.io}"
+OWNER="${CI_OWNER:-umrath}"
+IMAGE="${CI_IMAGE:-ha_opencode}"
+BASE_IMAGE="${CI_BASE_IMAGE:-ha_opencode-base}"
 REF="$REGISTRY/$OWNER/$IMAGE"
 
 # ── boot smoke test ───────────────────────────────────────────────────────────
@@ -116,7 +120,11 @@ echo "[build-image] building amd64 (native)…"
 # Verify the base image for the exact pinned digest exists and covers both arches.
 # The app Dockerfile pins by digest; if it's missing the build fails late.
 # Extract the pinned digest from the Dockerfile and verify both platforms.
-BASE_DIGEST=$(grep -m1 -oE 'ghcr\.io/umrath/ha_opencode-base[^[:space:]]*sha256:[a-f0-9]{64}' "$REPO_ROOT/ha_opencode/Dockerfile" || echo "")
+# Build the base-image regex from the centralised variables, escaping any regex
+# meta-characters so dots in the registry hostname are matched literally.
+BASE_REGISTRY_ESC=$(printf '%s' "$REGISTRY" | sed 's/[.]/[.]/g')
+BASE_REF_ESC=$(printf '%s/%s/%s' "$REGISTRY" "$OWNER" "$BASE_IMAGE" | sed 's/[.]/[.]/g')
+BASE_DIGEST=$(grep -m1 -oE "${BASE_REF_ESC}[^[:space:]]*sha256:[a-f0-9]{64}" "$REPO_ROOT/ha_opencode/Dockerfile" || echo "")
 if [ -z "$BASE_DIGEST" ]; then
     echo "[build-image] FATAL: no pinned base image digest found in Dockerfile"
     exit 1

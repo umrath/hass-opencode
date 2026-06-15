@@ -3,6 +3,8 @@
 # markers newest-first. Transient failures retry (marker kept, attempt counted).
 set -euo pipefail
 
+[ -f /etc/default/hass-opencode-ci ] && . /etc/default/hass-opencode-ci
+
 export DOCKER_CONFIG="${CI_DOCKER_CONFIG:-/root/.docker}"
 BUILDER="${CI_BUILDX_BUILDER:-ci-multiarch}-arm64"
 STATE_DIR="${CI_STATE_DIR:-/opt/ci/hass-opencode/state}"
@@ -11,9 +13,9 @@ ARM_RESULT="$STATE_DIR/arm64-results"
 LOCK="$STATE_DIR/arm64-worker.lock"
 REPO_ROOT="${CI_HOME:-/opt/ci/hass-opencode}/repo"
 
-REGISTRY=ghcr.io
-OWNER=umrath
-IMAGE=ha_opencode
+REGISTRY="${CI_REGISTRY:-ghcr.io}"
+OWNER="${CI_OWNER:-umrath}"
+IMAGE="${CI_IMAGE:-ha_opencode}"
 REF="$REGISTRY/$OWNER/$IMAGE"
 MAX_ATTEMPTS=5
 

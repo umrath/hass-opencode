@@ -32,12 +32,27 @@ echo "[install] units -> /etc/systemd/system/hass-opencode-ci.{service,timer}"
 
 # Seed an optional defaults file only if absent (don't clobber local overrides).
 if [ ! -f /etc/default/hass-opencode-ci ]; then
-  cat > /etc/default/hass-opencode-ci <<EOF
+  cat > /etc/default/hass-opencode-ci <<'EOF'
 # Overrides for the hass-opencode CI runner. Uncomment to change.
 #CI_REMOTE=https://github.com/umrath/hass-opencode.git
 #CI_BRANCH=main
+#CI_PUSH_REMOTE=<git remote with credentials for version bumps>
+#CI_AUTO_ACTIVATE=0
+#CI_REGISTRY=ghcr.io
+#CI_OWNER=umrath
+#CI_IMAGE=ha_opencode
+#CI_BASE_IMAGE=ha_opencode-base
 EOF
   echo "[install] wrote default /etc/default/hass-opencode-ci"
+else
+  # Idempotently add any missing config keys that were introduced later.
+  # Don't touch user-set values — only seed commented-out defaults for new keys.
+  for key in CI_REMOTE CI_BRANCH CI_PUSH_REMOTE CI_AUTO_ACTIVATE CI_REGISTRY CI_OWNER CI_IMAGE CI_BASE_IMAGE; do
+    if ! grep -qE "^[[:space:]]*${key}=" /etc/default/hass-opencode-ci 2>/dev/null; then
+      echo "#${key}=<unset>" >> /etc/default/hass-opencode-ci
+      echo "[install] added: #${key}=<unset>"
+    fi
+  done
 fi
 
 systemctl daemon-reload
