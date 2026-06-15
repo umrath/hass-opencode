@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.43
 
 - **Extract screenshot helpers** — `takeScreenshot`, `getSharedBrowser`, `getPuppeteer` → `lib/screenshot.js` via dependency injection. index.js: 4258 → 4054 lines.
 
