@@ -138,6 +138,21 @@ class _CommonConfigInvariants:
         self.assertIsInstance(self.cfg["backup_exclude"], list)
         self.assertTrue(self.cfg["backup_exclude"])
 
+    def test_opencode_update_policy_default(self):
+        policy = self.cfg.get("options", {}).get("opencode_update_policy")
+        self.assertIsNotNone(policy, "opencode_update_policy option is required")
+        docs_path = self.PATH.parent / "DOCS.md"
+        if not docs_path.exists():
+            return
+        docs_text = docs_path.read_text()
+        flat = " ".join(
+            docs_text.replace("**", "").replace("`", "").replace("\n", " ").split()
+        )
+        pat = r"\bdefault\b.*\b" + re.escape(policy) + r"\b"
+        self.assertTrue(re.search(pat, flat),
+            f"{self.PATH.parent.name}/DOCS.md 'default' must refer to '{policy}', "
+            f"not the other policy value")
+
 
 class TestStableConfig(_CommonConfigInvariants, unittest.TestCase):
     PATH = STABLE
@@ -174,22 +189,6 @@ class TestStableConfig(_CommonConfigInvariants, unittest.TestCase):
         self.assertTrue(opts["mcp_enabled"])
         self.assertTrue(opts["lsp_enabled"])
         self.assertEqual(opts["font_size"], 14)
-
-    def test_opencode_update_policy_default(self):
-        policy = self.cfg.get("options", {}).get("opencode_update_policy")
-        self.assertIsNotNone(policy, "opencode_update_policy option is required")
-        docs_path = REPO_ROOT / self.PATH / "DOCS.md"
-        if not docs_path.exists():
-            return
-        docs_text = docs_path.read_text()
-        # Normalise: strip formatting, collapse whitespace
-        flat = " ".join(
-            docs_text.replace("**", "").replace("`", "").replace("\n", " ").split()
-        )
-        pat = r"\bdefault\b.*\b" + re.escape(policy) + r"\b"
-        self.assertTrue(re.search(pat, flat),
-            f"{self.PATH}/DOCS.md 'default' must refer to '{policy}', "
-            f"not the other policy value")
 
     def test_secret_defaults_empty(self):
         self.assertEqual(self.cfg["options"]["ppq_api_key"], "")

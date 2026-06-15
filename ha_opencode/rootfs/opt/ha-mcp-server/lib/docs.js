@@ -13,7 +13,7 @@ export function createDocHelpers({ sendLog }) {
     try {
       const response = await fetch(url, {
         headers: {
-          "User-Agent": "HomeAssistant-MCP-Server/2.1.0",
+          "User-Agent": "HomeAssistant-MCP-Server/2.6.0",
           "Accept": "text/html,application/xhtml+xml,text/plain",
         },
         signal: AbortSignal.timeout(15000),

@@ -1,6 +1,7 @@
 """Tests for assets not covered by other test files."""
 import ast
 import json
+import re
 import subprocess
 import unittest
 from pathlib import Path
@@ -149,6 +150,25 @@ class TestTouchScrollJs(unittest.TestCase):
             self.assertLess(prevent_line, ticks_line,
                 "preventDefault must execute BEFORE tick threshold check, "
                 "otherwise sub-22px gestures leak to the ingress iframe")
+
+
+class TestMcpVersionConsistency(unittest.TestCase):
+    """All User-Agent strings in the MCP server codebase must agree."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.root = ROOT / "ha_opencode" / "rootfs" / "opt" / "ha-mcp-server"
+        cls.files = [f for f in cls.root.rglob("*.js")
+                     if "node_modules" not in f.parts]
+
+    def test_user_agent_versions_agree(self):
+        versions = set()
+        ua_pat = re.compile(r'HomeAssistant-MCP-Server/([\d.]+)')
+        for f in self.files:
+            for m in ua_pat.finditer(f.read_text() if f.exists() else ""):
+                versions.add(m.group(1))
+        self.assertLessEqual(len(versions), 1,
+            f"MCP server User-Agent strings have diverging versions: {sorted(versions)}")
 
 
 if __name__ == "__main__":

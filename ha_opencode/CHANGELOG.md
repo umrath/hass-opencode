@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Fix DOCS.md test path bug** — `test_opencode_update_policy_default` was silently skipped because `config.yaml/DOCS.md` never exists. Fixed path and moved test from `TestStableConfig` to `_CommonConfigInvariants` so both Stable and Beta are verified.
+- **Unify MCP User-Agent versions** — `lib/docs.js` User-Agent was stale at `2.1.0` (inherited from original); unified to `2.6.0` with index.js. Added regression test.
+
 ## 2.2.46
 
 - **Extract documentation helpers** — `fetchUrl`, `getCachedDoc`, `setCachedDoc` → `lib/docs.js`. index.js: 3550 → 3511 lines.
