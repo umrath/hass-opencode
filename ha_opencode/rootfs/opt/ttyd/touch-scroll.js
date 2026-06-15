@@ -32,13 +32,13 @@
 
     root.addEventListener('touchmove', function (e) {
       if (lastY === null || e.touches.length !== 1) return;
+      if (e.cancelable) e.preventDefault(); // prevent ingress iframe from stealing drag
       var t = e.touches[0];
       accum += lastY - t.clientY; // finger up => reveal lower content => scroll down
       lastY = t.clientY;
       var ticks = (accum / STEP) | 0;
       if (!ticks) return;
       accum -= ticks * STEP;
-      if (e.cancelable) e.preventDefault(); // keep the ingress iframe from scrolling
       var target = document.elementFromPoint(t.clientX, t.clientY) || root;
       var dir = ticks > 0 ? 1 : -1;
       var n = Math.abs(ticks);

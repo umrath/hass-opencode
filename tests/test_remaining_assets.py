@@ -128,6 +128,28 @@ class TestTouchScrollJs(unittest.TestCase):
         self.assertIn("touchstart", self.text)
         self.assertIn("maxTouchPoints", self.text)
 
+    def test_preventDefault_before_tick_threshold(self):
+        """preventDefault must fire at start of active drag, not after tick accumulation.
+        Sub-threshold gestures can otherwise leak to the HA ingress iframe."""
+        lines = self.text.splitlines()
+        touchmove_start = None
+        prevent_line = None
+        ticks_line = None
+        for i, line in enumerate(lines):
+            if "'touchmove'" in line and 'function' in line:
+                touchmove_start = i
+            if touchmove_start is not None:
+                if 'preventDefault' in line:
+                    prevent_line = i
+                    break
+                if 'ticks' in line and '|' in line:
+                    ticks_line = i
+        self.assertIsNotNone(prevent_line, "touchmove must call preventDefault")
+        if ticks_line is not None:
+            self.assertLess(prevent_line, ticks_line,
+                "preventDefault must execute BEFORE tick threshold check, "
+                "otherwise sub-22px gestures leak to the ingress iframe")
+
 
 if __name__ == "__main__":
     unittest.main()
