@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.33
 
 - **Unify license to MIT** — All references updated from Unlicense to MIT across OCI labels, package.json, DOCS.md, THIRD-PARTY-LICENSES.md. Added regression tests for license consistency.
 - **Fix version shield in README** — Changed from GitHub release API badge to manual version badge that `update-version-shield.sh` can update. Script now handles `?style=for-the-badge` suffix. Added test to prevent future pattern drift.
