@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.40
 
 - **Extract MCP data modules** — TOOLS array (750 lines) → `lib/tools.js`, RESOURCES + RESOURCE_TEMPLATES + PROMPTS (200 lines) → `lib/resources.js` + `lib/prompts.js`. index.js: 5287 → 4385 lines (−17%). All 362 tests pass.
 
