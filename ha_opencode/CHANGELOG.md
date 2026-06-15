@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.38
 
 - **Build timing measurement** — No code changes; timing the amd64 build duration.
 
