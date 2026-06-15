@@ -11,6 +11,7 @@ EnvironmentFile=-/etc/default/hass-opencode-ci
 # Keep HOME inside the CI tree so npm/git caches never touch /root.
 Environment=HOME=/opt/ci/hass-opencode
 Environment=npm_config_cache=/opt/ci/hass-opencode/.npm
+Environment=GIT_TERMINAL_PROMPT=0
 ExecStart=/opt/ci/hass-opencode/bin/run-ci.sh --once
 # Keep it polite: CI is best-effort, must never starve the image builds.
 Nice=10
