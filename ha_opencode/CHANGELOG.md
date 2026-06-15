@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.42
 
 - **Extract HA WebSocket helpers** — `callHAWebSocketCommand`, `getRegistry`, `invalidateRegistryCache` → `lib/websocket.js` via dependency injection factory. index.js: 4319 → 4258 lines.
 
