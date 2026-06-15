@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.39
 
 - **Functional MCP tool-handler tests** — 16 new subprocess tests that actually invoke the MCP server and validate tool responses. Covers `check_config_syntax` (valid/deprecated/missing-param), `write_config_safe` (dry-run, path-not-found), resource/prompt endpoints, error paths (unknown tool, pre-init call, HA-dependent without HA), and server liveness after calls.
 
