@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.34
 
 - **Expand legacy config migration** — Now catches `python3.*ha-mcp` and `server.py` patterns in addition to `/usr/share/ha-mcp`, covering more variants of old python-based MCP configs that crash opencode on startup.
 - **Fix touch-scroll iframe leak** — `preventDefault()` now fires immediately on active drag instead of after the 22px tick threshold. Prevents sub-threshold gestures from leaking to the HA ingress iframe.
