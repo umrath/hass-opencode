@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.2.35
 
 - **Harden config path containment** — `resolveConfigPath` now requires an exact match or a real path-separator boundary, so a sibling directory that merely shares the config-dir prefix (e.g. `/homeassistant-backup`) can no longer slip past the `write_config_safe` guard. Added regression tests.
 - **Boot smoke test before release** — the build host now boots the freshly built image (container stays up + ttyd binds the ingress port, under the AppArmor profile when available) and refuses to publish the user-facing manifest if it fails. Catches the `[exited]`/reconnect-loop class of regressions before a version is ever advertised. Set `CI_SKIP_SMOKE=1` to bypass.
