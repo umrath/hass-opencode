@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Extract HA/Supervisor API helpers** — `callHA` and `callSupervisor` → `lib/supervisor-api.js` via dependency injection factory. index.js: 4385 → 4319 lines.
+
 ## 2.2.40
 
 - **Extract MCP data modules** — TOOLS array (750 lines) → `lib/tools.js`, RESOURCES + RESOURCE_TEMPLATES + PROMPTS (200 lines) → `lib/resources.js` + `lib/prompts.js`. index.js: 5287 → 4385 lines (−17%). All 362 tests pass.
