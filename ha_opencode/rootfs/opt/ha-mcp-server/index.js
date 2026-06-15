@@ -75,6 +75,7 @@ import { fileURLToPath } from "url";
 import { defineTools } from "./lib/tools.js";
 import { RESOURCES, RESOURCE_TEMPLATES } from "./lib/resources.js";
 import { PROMPTS } from "./lib/prompts.js";
+import { createApiHelpers } from "./lib/supervisor-api.js";
 import { detectAnomaly, searchEntities, generateSuggestions, generateStateSummary } from "./lib/intelligence.js";
 import { validateYamlStructure, resolveConfigPath } from "./lib/validation.js";
 import { extractContentFromHtml, extractConfigurationSection, extractYamlExamples } from "./lib/html-parser.js";
@@ -176,80 +177,13 @@ const API_TIMEOUT_MS = 30000;
 const CHECK_CONFIG_TIMEOUT_MS = 120000;
 const UPDATE_TIMEOUT_MS = 600000;
 
-/**
- * Call Home Assistant via Supervisor API proxy
- * Used for most endpoints that are proxied through supervisor
- */
-async function callHA(endpoint, method = "GET", body = null, timeoutMs = API_TIMEOUT_MS) {
-  sendLog("debug", "ha-api", { action: "request", endpoint, method });
-
-  const options = {
-    method,
-    headers: {
-      "Authorization": `Bearer ${SUPERVISOR_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    signal: AbortSignal.timeout(timeoutMs),
-  };
-
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
-
-  const response = await fetch(`${SUPERVISOR_API}${endpoint}`, options);
-  
-  if (!response.ok) {
-    const text = await response.text();
-    sendLog("error", "ha-api", { action: "error", endpoint, status: response.status, error: text });
-    throw new Error(`HA API error (${response.status}): ${text}`);
-  }
-
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    const result = await response.json();
-    sendLog("debug", "ha-api", { action: "response", endpoint, success: true });
-    return result;
-  }
-  return response.text();
-}
-
-/**
- * Call Home Assistant Supervisor API directly
- * Used for app management, updates, jobs, and system operations
- */
-async function callSupervisor(endpoint, method = "GET", body = null, timeoutMs = API_TIMEOUT_MS) {
-  sendLog("debug", "supervisor-api", { action: "request", endpoint, method });
-
-  const options = {
-    method,
-    headers: {
-      "Authorization": `Bearer ${SUPERVISOR_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    signal: AbortSignal.timeout(timeoutMs),
-  };
-
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
-
-  const response = await fetch(`http://supervisor${endpoint}`, options);
-  
-  if (!response.ok) {
-    const text = await response.text();
-    sendLog("error", "supervisor-api", { action: "error", endpoint, status: response.status, error: text });
-    throw new Error(`Supervisor API error (${response.status}): ${text}`);
-  }
-
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    const result = await response.json();
-    sendLog("debug", "supervisor-api", { action: "response", endpoint, success: true });
-    // Supervisor API wraps data in { result: "ok", data: {...} }
-    return result.data !== undefined ? result.data : result;
-  }
-  return response.text();
-}
+// HA / Supervisor API helpers — provided by lib/supervisor-api.js
+const { callHA, callSupervisor } = createApiHelpers({
+  supervisorToken: SUPERVISOR_TOKEN,
+  supervisorApi: SUPERVISOR_API,
+  sendLog,
+  apiTimeoutMs: API_TIMEOUT_MS,
+});
 
 // Short-lived cache for the full state dump â€” many tools fetch /states and
 // filter in JS; this collapses repeat fetches within a burst of agent calls
