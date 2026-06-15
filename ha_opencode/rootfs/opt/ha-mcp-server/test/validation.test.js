@@ -123,6 +123,19 @@ describe("resolveConfigPath", () => {
     expect(result).toBeNull();
   });
 
+  it("rejects a sibling dir sharing the config-dir prefix (relative)", () => {
+    // "/homeassistant/../homeassistant-backup/x" normalizes to
+    // "/homeassistant-backup/x", which startsWith("/homeassistant") but is NOT
+    // inside the config dir — must be rejected by the path-boundary check.
+    const result = resolveConfigPath("../homeassistant-backup/secrets.yaml", configDir);
+    expect(result).toBeNull();
+  });
+
+  it("rejects a sibling dir sharing the config-dir prefix (absolute)", () => {
+    const result = resolveConfigPath("/homeassistant-evil/secrets.yaml", configDir);
+    expect(result).toBeNull();
+  });
+
   it("blocks .storage access", () => {
     const result = resolveConfigPath(".storage/core.entity_registry", configDir);
     expect(result).toBeNull();

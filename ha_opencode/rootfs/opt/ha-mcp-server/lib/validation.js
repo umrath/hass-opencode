@@ -115,8 +115,11 @@ export function resolveConfigPath(filePath, configDir = DEFAULT_CONFIG_DIR) {
   const resolved = isAbsolute(filePath) ? filePath : join(configDir, filePath);
   const normalized = normalize(resolved);
 
-  // Ensure the resolved path is still within the config directory
-  if (!normalized.startsWith(configDir)) {
+  // Ensure the resolved path is still within the config directory. A plain
+  // startsWith(configDir) is not enough: it also matches sibling directories
+  // that merely share the prefix (e.g. "/homeassistant-backup/x" starts with
+  // "/homeassistant"). Require an exact match or a real path-separator boundary.
+  if (normalized !== configDir && !normalized.startsWith(configDir + "/")) {
     return null;
   }
 
