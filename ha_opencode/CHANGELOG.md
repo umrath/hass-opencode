@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Build timing measurement** — No code changes; timing the amd64 build duration.
+
 ## 2.2.37
 
 - **Centralize registry/repo configuration** — `REGISTRY`/`OWNER`/`IMAGE` now sourced from `/etc/default/hass-opencode-ci` (with fallback defaults) in all build-host scripts (`build-image.sh`, `build-arm64-worker.sh`, `build-base.sh`). `BASE_DIGEST` regex built dynamically from variables. `install.sh` gains idempotent key seeding for new config entries. Fixes activation push failures by adding `GIT_TERMINAL_PROMPT=0` to the CI service and removing a redundant credential helper.
