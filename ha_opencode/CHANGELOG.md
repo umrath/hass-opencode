@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Extract MCP data modules** — TOOLS array (750 lines) → `lib/tools.js`, RESOURCES + RESOURCE_TEMPLATES + PROMPTS (200 lines) → `lib/resources.js` + `lib/prompts.js`. index.js: 5287 → 4385 lines (−17%). All 362 tests pass.
+
 ## 2.2.39
 
 - **Functional MCP tool-handler tests** — 16 new subprocess tests that actually invoke the MCP server and validate tool responses. Covers `check_config_syntax` (valid/deprecated/missing-param), `write_config_safe` (dry-run, path-not-found), resource/prompt endpoints, error paths (unknown tool, pre-init call, HA-dependent without HA), and server liveness after calls.
