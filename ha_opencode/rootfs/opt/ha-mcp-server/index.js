@@ -76,6 +76,7 @@ import { defineTools } from "./lib/tools.js";
 import { RESOURCES, RESOURCE_TEMPLATES } from "./lib/resources.js";
 import { PROMPTS } from "./lib/prompts.js";
 import { createApiHelpers } from "./lib/supervisor-api.js";
+import { createWebSocketHelpers } from "./lib/websocket.js";
 import { detectAnomaly, searchEntities, generateSuggestions, generateStateSummary } from "./lib/intelligence.js";
 import { validateYamlStructure, resolveConfigPath } from "./lib/validation.js";
 import { extractContentFromHtml, extractConfigurationSection, extractYamlExamples } from "./lib/html-parser.js";
@@ -183,6 +184,12 @@ const { callHA, callSupervisor } = createApiHelpers({
   supervisorApi: SUPERVISOR_API,
   sendLog,
   apiTimeoutMs: API_TIMEOUT_MS,
+});
+
+// HA WebSocket helpers — provided by lib/websocket.js
+const { callHAWebSocketCommand, getRegistry, invalidateRegistryCache } = createWebSocketHelpers({
+  supervisorToken: SUPERVISOR_TOKEN,
+  sendLog,
 });
 
 // Short-lived cache for the full state dump â€” many tools fetch /states and
@@ -1529,74 +1536,6 @@ async function fetchHARepairs() {
     });
   });
 }
-
-/**
- * Run a single HA WebSocket API command (auth, send, close).
- * Used for registry dumps that have no REST equivalent.
- */
-function callHAWebSocketCommand(commandType, timeoutMs = 5000) {
-  return new Promise((promiseResolve, promiseReject) => {
-    let settled = false;
-    const settle = (fn, value) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timeout);
-      try { ws.close(); } catch (_) {}
-      fn(value);
-    };
-    const timeout = setTimeout(() => {
-      settle(promiseReject, new Error(`WebSocket command '${commandType}' timed out`));
-    }, timeoutMs);
-
-    let ws;
-    try {
-      ws = new WebSocket("ws://supervisor/core/websocket");
-    } catch (error) {
-      clearTimeout(timeout);
-      promiseReject(error);
-      return;
-    }
-
-    ws.on("message", (data) => {
-      try {
-        const msg = JSON.parse(data.toString());
-        if (msg.type === "auth_required") {
-          ws.send(JSON.stringify({ type: "auth", access_token: SUPERVISOR_TOKEN }));
-        } else if (msg.type === "auth_ok") {
-          ws.send(JSON.stringify({ id: 1, type: commandType }));
-        } else if (msg.type === "auth_invalid") {
-          settle(promiseReject, new Error("WebSocket authentication failed"));
-        } else if (msg.type === "result") {
-          if (msg.success) {
-            settle(promiseResolve, msg.result);
-          } else {
-            settle(promiseReject, new Error(msg.error?.message || `WebSocket command '${commandType}' failed`));
-          }
-        }
-      } catch (_) { /* ignore parse errors, wait for timeout */ }
-    });
-
-    ws.on("error", (error) => {
-      settle(promiseReject, error);
-    });
-  });
-}
-
-// Area/device registries change rarely; cache them to avoid a WS round trip per call
-const registryCache = new Map();
-const REGISTRY_CACHE_TTL = 300000; // 5 minutes
-
-async function getRegistry(commandType) {
-  const cached = registryCache.get(commandType);
-  const now = Date.now();
-  if (cached && (now - cached.fetchedAt) < REGISTRY_CACHE_TTL) {
-    return cached.data;
-  }
-  const data = await callHAWebSocketCommand(commandType);
-  registryCache.set(commandType, { data, fetchedAt: now });
-  return data;
-}
-
 /**
  * Get the best available deprecation patterns.
  * Tries remote (GitHub) first, falls back to local bundled patterns.

@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Extract HA WebSocket helpers** — `callHAWebSocketCommand`, `getRegistry`, `invalidateRegistryCache` → `lib/websocket.js` via dependency injection factory. index.js: 4319 → 4258 lines.
+
 ## 2.2.41
 
 - **Extract HA/Supervisor API helpers** — `callHA` and `callSupervisor` → `lib/supervisor-api.js` via dependency injection factory. index.js: 4385 → 4319 lines.
