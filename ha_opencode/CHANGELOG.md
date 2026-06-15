@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Extract documentation helpers** — `fetchUrl`, `getCachedDoc`, `setCachedDoc` → `lib/docs.js`. index.js: 3550 → 3511 lines.
+
 ## 2.2.45
 
 - **Extract state cache + entity helpers** — `getCachedStates`, `invalidateStatesCache`, `getEntityRelationships` → `lib/states.js`. index.js: 3620 → 3550 lines.
