@@ -22,9 +22,12 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends \
-        git jq nodejs procps python3 python3-venv tmux \
+        chromium fonts-liberation git jq nodejs procps python3 python3-venv tmux \
     && rm -rf /var/lib/apt/lists/*
 
+# Chromium is baked in at build time (not installed at runtime): the hardened
+# AppArmor profile keeps /usr read-only, so a runtime apt-install would fail.
+# Both arches get it from the Debian repo; the screenshot tool runs it headless.
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # ── ttyd: web terminal (single binary from GitHub) ───────────────────────────

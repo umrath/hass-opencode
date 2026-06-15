@@ -656,7 +656,7 @@ Add a weather card to the overview and verify it looks right
 
 ### Notes
 
-- The screenshot tool adds Chromium to the container image, increasing its size
+- Chromium is built into the image (it cannot be installed at runtime under the hardened AppArmor profile), so the image is larger whether or not screenshots are enabled
 - Each screenshot takes approximately 5-10 seconds (browser launch + page load + render wait)
 - Screenshots are only taken when the AI explicitly calls the tool — no background processes
 - The Long-Lived Access Token is the same one used for ESPHome tools

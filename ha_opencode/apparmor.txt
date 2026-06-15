@@ -111,6 +111,21 @@ profile ha_opencode flags=(attach_disconnected,mediate_deleted) {
   /tmp/** rwkm,
   /tmp/** ixmr,
 
+  # ── Headless Chromium runtime (screenshot_enabled) ──────────────────────────
+  # Chromium is baked into the image at build time (see Dockerfile.base); these
+  # are the narrow runtime accesses it needs to launch headless: tune its own
+  # processes via /proc, build a font cache, and use ptrace for crash handling.
+  # Deliberately scoped — no /usr write, no extra Linux capabilities. Chromium
+  # itself executes via the existing /usr/bin + /usr/lib exec/mmap rules.
+  /proc/ r,
+  owner /proc/*/oom_score_adj rw,
+  owner /proc/*/clear_refs w,
+  /var/cache/fontconfig/ rw,
+  /var/cache/fontconfig/** rwlk,
+  /var/tmp/ rw,
+  /var/tmp/** rwk,
+  ptrace (read, trace) peer=ha_opencode,
+
   # ── zigporter (isolated venv; /usr/local/bin/zigporter -> here) ───────────
   /opt/zigporter-venv/ r,
   /opt/zigporter-venv/** ixmr,

@@ -34,6 +34,12 @@ class TestDockerfile(unittest.TestCase):
         for pkg in ("git", "jq", "nodejs", "procps", "python3", "python3-venv", "tmux"):
             self.assertIn(pkg, self.base_text, f"Dockerfile.base should install {pkg}")
 
+    def test_base_bakes_in_chromium(self):
+        # Chromium must be in the image at build time — it cannot be apt-installed
+        # at runtime under the hardened AppArmor profile (read-only /usr).
+        self.assertIn("chromium", self.base_text,
+            "Dockerfile.base must install chromium (screenshot tool; no runtime install)")
+
     def test_base_installs_global_npm(self):
         self.assertIn("opencode-ai", self.base_text)
         self.assertIn("prettier", self.base_text)

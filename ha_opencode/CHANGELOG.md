@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Screenshot/Chromium works under the hardened AppArmor profile** — Chromium is now baked into the base image at build time (both arches) instead of being apt-installed at runtime, which the read-only-`/usr` AppArmor profile blocked. The profile gains a narrow set of Chromium-runtime allowances (own-process `/proc` tuning, font cache, `/var/tmp`, `ptrace` for crash handling) — **no `/usr` write and no extra Linux capabilities**. Verified on the build host: headless Chromium produces screenshots under the enforced profile with zero denials. Note: the image is ~1 GB larger as a result, whether or not screenshots are enabled.
+
 ## 2.2.35
 
 - **Harden config path containment** — `resolveConfigPath` now requires an exact match or a real path-separator boundary, so a sibling directory that merely shares the config-dir prefix (e.g. `/homeassistant-backup`) can no longer slip past the `write_config_safe` guard. Added regression tests.

@@ -37,14 +37,15 @@ class TestInitService(unittest.TestCase):
     def test_uses_bundled_opencode(self):
         self.assertIn("bundled OpenCode", self.text)
 
-    def test_installs_chromium_at_runtime(self):
+    def test_screenshot_uses_baked_in_chromium(self):
+        # Chromium is built into the image (Dockerfile.base), NOT installed at
+        # runtime — the hardened AppArmor profile keeps /usr read-only, so a
+        # runtime apt-install would fail. init must only gate on its presence.
         self.assertIn("screenshot_enabled", self.text)
-        self.assertIn("chromium", self.text)
-        # Timeout protection and fallback
-        self.assertIn("timeout", self.text,
-            "chromium install must have timeout protection")
-        self.assertIn("SCREENSHOT_ENABLED=false", self.text,
-            "screenshot must fall back to disabled on install failure")
+        self.assertNotIn("apt-get install", self.text,
+            "must NOT apt-install chromium at runtime (it is baked into the image)")
+        self.assertIn("command -v chromium", self.text,
+            "screenshot must verify chromium is present before enabling")
 
     def test_checks_hab_and_zigporter(self):
         self.assertIn("hab", self.text)
