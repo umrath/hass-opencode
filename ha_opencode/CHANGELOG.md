@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- **Extract ESPHome helpers** — `discoverESPHome`, `getESPHomeConnection`, `createIngressSessionViaWebSocket`, `streamESPHomeLogs`, `getESPHomeDevices` → `lib/esphome.js`. index.js: 4054 → 3620 lines.
+
 ## 2.2.43
 
 - **Extract screenshot helpers** — `takeScreenshot`, `getSharedBrowser`, `getPuppeteer` → `lib/screenshot.js` via dependency injection. index.js: 4258 → 4054 lines.
