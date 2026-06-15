@@ -50,6 +50,14 @@ class TestInitService(unittest.TestCase):
         self.assertIn("hab", self.text)
         self.assertIn("zigporter", self.text)
 
+    def test_legacy_config_migration(self):
+        self.assertIn("/homeassistant/.opencode/opencode.json", self.text,
+            "must check for legacy project config")
+        self.assertIn("server.py", self.text,
+            "must catch python-based legacy MCP configs (server.py)")
+        self.assertIn("ha-mcp", self.text,
+            "must catch legacy MCP server paths")
+
 
 if __name__ == "__main__":
     unittest.main()
